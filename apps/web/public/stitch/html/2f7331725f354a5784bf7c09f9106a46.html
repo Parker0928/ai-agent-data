@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+
+<html class="light" lang="zh-CN"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>智能数据助手 - AI 智能对话</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            line-height: 1;
+            font-size: 1.25rem;
+        }
+        body {
+            font-family: 'Inter', 'PingFang SC', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+        .headline-font {
+            font-family: 'Manrope', sans-serif;
+        }
+        /* Glassmorphism utility */
+        .glass-panel {
+            background: rgba(226, 215, 255, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        /* Hide scrollbar but keep functionality */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              colors: {
+                "secondary-fixed-dim": "#81ccff",
+                "background": "#faf4ff",
+                "on-primary-container": "#14007e",
+                "tertiary-fixed-dim": "#b091ff",
+                "on-error": "#ffefef",
+                "secondary-dim": "#00557b",
+                "surface-container-highest": "#e2d7ff",
+                "surface-tint": "#4a40e0",
+                "on-primary-fixed-variant": "#1a0099",
+                "surface-container-lowest": "#ffffff",
+                "on-primary-fixed": "#000000",
+                "surface-container": "#ede4ff",
+                "outline": "#7b719c",
+                "tertiary": "#6a37d4",
+                "primary-dim": "#3d30d4",
+                "secondary-container": "#a4d8ff",
+                "error": "#b41340",
+                "on-error-container": "#510017",
+                "surface-dim": "#dacdff",
+                "inverse-primary": "#8582ff",
+                "error-dim": "#a70138",
+                "inverse-on-surface": "#a296c4",
+                "tertiary-fixed": "#bda2ff",
+                "tertiary-container": "#bda2ff",
+                "primary-fixed": "#9795ff",
+                "surface-bright": "#faf4ff",
+                "secondary": "#00628c",
+                "inverse-surface": "#10062d",
+                "on-tertiary-container": "#3c0091",
+                "on-tertiary": "#f8f0ff",
+                "surface-container-high": "#e8deff",
+                "surface-variant": "#e2d7ff",
+                "surface": "#faf4ff",
+                "primary-fixed-dim": "#8885ff",
+                "on-surface-variant": "#5f557f",
+                "primary": "#4a40e0",
+                "error-container": "#f74b6d",
+                "on-tertiary-fixed": "#1f0052",
+                "on-primary": "#f4f1ff",
+                "on-tertiary-fixed-variant": "#4600a8",
+                "on-secondary": "#e9f4ff",
+                "secondary-fixed": "#a4d8ff",
+                "surface-container-low": "#f5eeff",
+                "outline-variant": "#b2a6d5",
+                "on-secondary-fixed": "#003853",
+                "tertiary-dim": "#5e26c7",
+                "on-surface": "#32294f",
+                "on-secondary-container": "#004c6f",
+                "on-secondary-fixed-variant": "#00567c",
+                "primary-container": "#9795ff",
+                "on-background": "#32294f"
+              },
+              fontFamily: {
+                "headline": ["Manrope"],
+                "body": ["Inter"],
+                "label": ["Inter"]
+              },
+              borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+            },
+          },
+        }
+    </script>
+</head>
+<body class="bg-background text-on-background selection:bg-primary-container selection:text-on-primary-container">
+<!-- Sidebar Navigation Shell -->
+<aside class="h-screen w-64 flex flex-col fixed left-0 top-0 overflow-y-auto bg-[#f5eeff] dark:bg-slate-900 font-['Manrope'] text-sm font-medium z-40 transition-all duration-300">
+<!-- Brand Header -->
+<div class="flex flex-col gap-1 p-6">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-xl bg-gradient-to-br from-[#4a40e0] to-[#6a37d4] flex items-center justify-center shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined text-white" style="font-variation-settings: 'FILL' 1;">dataset</span>
+</div>
+<div>
+<h1 class="text-lg font-bold text-[#4a40e0]">Synthetix AI</h1>
+<p class="text-[10px] text-outline tracking-widest uppercase">Digital Curator</p>
+</div>
+</div>
+</div>
+<!-- Navigation Links -->
+<nav class="flex-1 flex flex-col py-4 gap-2 no-scrollbar">
+<a class="flex items-center gap-3 text-slate-600 dark:text-slate-400 p-3 mx-2 hover:bg-[#e8deff] dark:hover:bg-slate-800 transition-colors hover:translate-x-1 duration-200 group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">dashboard</span>
+<span>Dashboard</span>
+</a>
+<a class="flex items-center gap-3 bg-[#ffffff] dark:bg-slate-800 text-[#4a40e0] dark:text-indigo-300 rounded-xl shadow-sm p-3 mx-2 transition-transform duration-200 hover:translate-x-1" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">forum</span>
+<span>Chat</span>
+</a>
+<a class="flex items-center gap-3 text-slate-600 dark:text-slate-400 p-3 mx-2 hover:bg-[#e8deff] dark:hover:bg-slate-800 transition-colors hover:translate-x-1 duration-200 group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">database</span>
+<span>Knowledge</span>
+</a>
+<a class="flex items-center gap-3 text-slate-600 dark:text-slate-400 p-3 mx-2 hover:bg-[#e8deff] dark:hover:bg-slate-800 transition-colors hover:translate-x-1 duration-200 group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">storefront</span>
+<span>Marketplace</span>
+</a>
+<a class="flex items-center gap-3 text-slate-600 dark:text-slate-400 p-3 mx-2 hover:bg-[#e8deff] dark:hover:bg-slate-800 transition-colors hover:translate-x-1 duration-200 group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">history</span>
+<span>History</span>
+</a>
+<a class="flex items-center gap-3 text-slate-600 dark:text-slate-400 p-3 mx-2 hover:bg-[#e8deff] dark:hover:bg-slate-800 transition-colors hover:translate-x-1 duration-200 group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">monitoring</span>
+<span>Analytics</span>
+</a>
+</nav>
+<!-- Sidebar Bottom / History Section -->
+<div class="p-6 mt-auto border-t border-surface-container">
+<p class="text-[10px] font-bold text-outline mb-4 uppercase tracking-widest px-2">最近会话</p>
+<div class="space-y-2">
+<div class="px-2 py-2 rounded-lg hover:bg-[#e8deff] cursor-pointer transition-all group">
+<p class="text-xs font-medium text-on-surface line-clamp-1">Q3 季度销售数据分析</p>
+<p class="text-[10px] text-outline mt-1">2小时前</p>
+</div>
+<div class="px-2 py-2 rounded-lg hover:bg-[#e8deff] cursor-pointer transition-all">
+<p class="text-xs font-medium text-on-surface line-clamp-1">新产品市场调研洞察</p>
+<p class="text-[10px] text-outline mt-1">昨天</p>
+</div>
+</div>
+<div class="mt-6 flex items-center gap-3 px-4 py-3 rounded-xl bg-surface-container-low">
+<img alt="User Avatar" class="w-8 h-8 rounded-full" data-alt="Minimalist geometric avatar portrait" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAfpdWSX5XyDSVKCmJTSvnU85p2DLjdT0QgcLqBqUBDGpnZJwkMdk9XIYSwc5hpPk6XECDZixxgNGrG-NVF5_kIeOZlFVUbCzjGg3Lu795HEE92Ms350jvk8gWF9ulsr_kJ_qHNFCJ96_Q_fybrzxYDcbeWceMWa3DI4H2YKp26sY1sjnUNAnS2xfemZHC5GMXOvofflmB-wbfEwKMZrpWN2nTRuoBB_YXSLGBESGvhLWJhrLIv3ItUtLn3gATqFAIByTSpVx2SmYMW"/>
+<div class="flex-1 overflow-hidden">
+<p class="text-xs font-bold text-on-surface truncate">Alex Chen</p>
+<p class="text-[10px] text-outline truncate">高级分析师</p>
+</div>
+<span class="material-symbols-outlined text-outline text-lg cursor-pointer hover:text-primary transition-colors">settings</span>
+</div>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="ml-64 min-h-screen flex flex-col relative overflow-hidden">
+<!-- Top Navigation Bar -->
+<header class="sticky top-0 w-full h-20 z-40 bg-[#faf4ff]/70 backdrop-blur-xl flex items-center justify-between px-8 gap-6 shadow-[0_24px_40px_rgba(50,41,79,0.04)]">
+<div class="flex items-center gap-4 flex-1">
+<div class="relative w-full max-w-md group">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors">search</span>
+<input class="w-full bg-surface-container-low border-none rounded-full py-2.5 pl-12 pr-4 text-sm focus:ring-2 focus:ring-primary/20 transition-all placeholder:text-outline/60" placeholder="搜索会话内容、指令或数据集..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<button class="hover:bg-white/50 rounded-full p-2 transition-all flex items-center justify-center">
+<span class="material-symbols-outlined text-on-surface-variant">history</span>
+</button>
+<button class="hover:bg-white/50 rounded-full p-2 transition-all flex items-center justify-center relative">
+<span class="material-symbols-outlined text-on-surface-variant">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full ring-2 ring-white"></span>
+</button>
+<div class="h-8 w-[1px] bg-outline-variant/30 mx-2"></div>
+<div class="flex items-center gap-3 pl-2">
+<span class="text-sm font-semibold headline-font text-primary">智能助理模式</span>
+<div class="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-lg" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+</div>
+</div>
+</div>
+</header>
+<!-- Chat Area -->
+<section class="flex-1 flex flex-col max-w-5xl mx-auto w-full pt-8 pb-32 px-6">
+<!-- Message: User -->
+<div class="flex flex-col items-end mb-10">
+<div class="max-w-[80%] bg-surface-container-low text-on-surface px-6 py-4 rounded-3xl rounded-tr-none shadow-sm">
+<p class="leading-relaxed text-[0.9375rem]">你好，请帮我分析一下上个月华东地区的销售趋势，并对比一下去年同期的数据。我需要重点关注利润率的变化。</p>
+</div>
+<div class="flex items-center gap-2 mt-2 mr-2">
+<span class="text-[10px] text-outline font-medium">10:24 AM</span>
+<span class="material-symbols-outlined text-outline text-xs" style="font-variation-settings: 'FILL' 1;">done_all</span>
+</div>
+</div>
+<!-- Message: AI (Streaming Response) -->
+<div class="flex flex-col items-start mb-10">
+<div class="flex items-start gap-4 w-full">
+<div class="w-10 h-10 rounded-2xl bg-primary flex-shrink-0 flex items-center justify-center shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined text-on-primary text-xl">smart_toy</span>
+</div>
+<div class="flex-1 space-y-6">
+<!-- AI Response Text -->
+<div class="max-w-[90%] space-y-4">
+<p class="text-[0.9375rem] leading-relaxed text-on-surface-variant">
+                                正在为您分析华东地区上月的销售数据... 
+                                <span class="inline-block w-1.5 h-4 bg-primary/40 animate-pulse align-middle ml-1"></span>
+</p>
+<div class="bg-white rounded-3xl p-6 shadow-sm space-y-4 border border-surface-container">
+<p class="font-medium text-on-surface">分析摘要：</p>
+<p class="text-sm text-on-surface-variant leading-relaxed">
+                                    华东地区（上海、江苏、浙江）在 10 月份表现强劲，总销售额达到 <span class="text-primary font-bold">¥1,240,000</span>，同比增长了 <span class="text-primary font-bold">14.2%</span>。尽管销售额有所增长，但利润率受原材料成本上升影响，呈现微弱下降趋势。
+                                </p>
+</div>
+</div>
+<!-- Structured Data: Comparison Card (Bento Grid Style) -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+<!-- Metric Card 1 -->
+<div class="bg-surface-container-low p-5 rounded-3xl border border-transparent hover:border-primary-container/30 transition-all group">
+<div class="flex items-center justify-between mb-4">
+<span class="text-xs font-bold text-outline tracking-wider uppercase">销售额对比 (YoY)</span>
+<span class="material-symbols-outlined text-primary bg-primary-container/20 p-2 rounded-xl">trending_up</span>
+</div>
+<div class="flex items-end gap-3">
+<span class="text-3xl font-black headline-font text-on-surface">¥1.24M</span>
+<span class="text-sm text-green-600 font-bold mb-1">+14.2%</span>
+</div>
+<div class="mt-4 h-1.5 w-full bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[75%]"></div>
+</div>
+</div>
+<!-- Metric Card 2 -->
+<div class="bg-surface-container-low p-5 rounded-3xl border border-transparent hover:border-primary-container/30 transition-all">
+<div class="flex items-center justify-between mb-4">
+<span class="text-xs font-bold text-outline tracking-wider uppercase">平均利润率</span>
+<span class="material-symbols-outlined text-error bg-error-container/20 p-2 rounded-xl">trending_down</span>
+</div>
+<div class="flex items-end gap-3">
+<span class="text-3xl font-black headline-font text-on-surface">18.5%</span>
+<span class="text-sm text-error font-bold mb-1">-2.1%</span>
+</div>
+<div class="mt-4 h-1.5 w-full bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-error w-[60%]"></div>
+</div>
+</div>
+</div>
+<!-- Structured Data: Table -->
+<div class="bg-surface-container-lowest rounded-3xl p-6 shadow-xl shadow-on-surface/[0.03] overflow-hidden">
+<div class="flex items-center justify-between mb-6">
+<h3 class="text-sm font-bold text-on-surface">各省份销售细分</h3>
+<button class="text-xs text-primary font-bold hover:underline">导出 CSV</button>
+</div>
+<table class="w-full text-left text-sm">
+<thead>
+<tr class="text-outline border-b border-surface-container">
+<th class="pb-3 font-medium">省份/城市</th>
+<th class="pb-3 font-medium">销售额 (k)</th>
+<th class="pb-3 font-medium">利润率</th>
+<th class="pb-3 font-medium">趋势</th>
+</tr>
+</thead>
+<tbody class="text-on-surface-variant">
+<tr class="border-b border-surface-container/50">
+<td class="py-4 font-medium">上海市</td>
+<td class="py-4">¥450.2</td>
+<td class="py-4">22.4%</td>
+<td class="py-4"><span class="text-green-600">稳定</span></td>
+</tr>
+<tr class="border-b border-surface-container/50">
+<td class="py-4 font-medium">江苏省</td>
+<td class="py-4">¥380.5</td>
+<td class="py-4">16.8%</td>
+<td class="py-4"><span class="text-primary">上升</span></td>
+</tr>
+<tr>
+<td class="py-4 font-medium">浙江省</td>
+<td class="py-4">¥409.3</td>
+<td class="py-4">15.5%</td>
+<td class="py-4"><span class="text-error">下降</span></td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Suggested Actions (Chips) -->
+<div class="flex flex-wrap gap-2">
+<span class="px-4 py-2 bg-tertiary-container/15 text-tertiary rounded-full text-xs font-medium cursor-pointer hover:bg-tertiary-container/30 transition-all">
+                                预测下个月趋势
+                            </span>
+<span class="px-4 py-2 bg-tertiary-container/15 text-tertiary rounded-full text-xs font-medium cursor-pointer hover:bg-tertiary-container/30 transition-all">
+                                详细分析利润率下降原因
+                            </span>
+<span class="px-4 py-2 bg-tertiary-container/15 text-tertiary rounded-full text-xs font-medium cursor-pointer hover:bg-tertiary-container/30 transition-all">
+                                生成月度简报
+                            </span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Fixed Bottom Input Area -->
+<div class="fixed bottom-0 left-64 right-0 p-8 bg-gradient-to-t from-background via-background/95 to-transparent z-30 transition-all duration-300">
+<div class="max-w-4xl mx-auto">
+<div class="bg-white rounded-[2.5rem] p-2 shadow-[0_20px_50px_rgba(74,64,224,0.1)] border border-primary/5 focus-within:ring-4 focus-within:ring-primary/5 transition-all">
+<div class="flex items-end gap-2 px-4 py-2">
+<!-- Action Buttons: Left -->
+<div class="flex items-center gap-1 mb-1">
+<button class="w-10 h-10 rounded-full hover:bg-surface-container-low text-outline-variant hover:text-primary transition-all flex items-center justify-center">
+<span class="material-symbols-outlined">attach_file</span>
+</button>
+<button class="w-10 h-10 rounded-full hover:bg-surface-container-low text-outline-variant hover:text-primary transition-all flex items-center justify-center">
+<span class="material-symbols-outlined">image</span>
+</button>
+</div>
+<!-- Textarea -->
+<div class="flex-1">
+<textarea class="w-full border-none focus:ring-0 text-[0.9375rem] py-3 resize-none bg-transparent placeholder:text-outline/40 no-scrollbar" placeholder="向智能助手提问，例如 '分析本季度的毛利构成'..." rows="1"></textarea>
+</div>
+<!-- Action Buttons: Right -->
+<div class="flex items-center gap-2 mb-1">
+<button class="w-10 h-10 rounded-full hover:bg-surface-container-low text-outline-variant hover:text-primary transition-all flex items-center justify-center">
+<span class="material-symbols-outlined">mic</span>
+</button>
+<button class="w-10 h-10 rounded-full bg-primary text-white shadow-lg shadow-primary/30 flex items-center justify-center hover:scale-105 active:scale-95 transition-all">
+<span class="material-symbols-outlined">arrow_upward</span>
+</button>
+</div>
+</div>
+</div>
+<p class="text-[10px] text-center text-outline mt-3">
+                    由 Synthetix Intelligence • Digital Curator AI 提供强力支持
+                </p>
+</div>
+</div>
+<!-- Decorative Background Elements -->
+<div class="absolute -top-24 -right-24 w-96 h-96 bg-primary/5 rounded-full blur-[120px] -z-10"></div>
+<div class="absolute top-1/2 -left-24 w-64 h-64 bg-tertiary/5 rounded-full blur-[100px] -z-10"></div>
+</main>
+</body></html>

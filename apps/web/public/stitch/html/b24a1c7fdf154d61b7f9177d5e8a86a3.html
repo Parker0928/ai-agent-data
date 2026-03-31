@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>智能数据助手 - 知识库</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "secondary-fixed-dim": "#81ccff",
+                        "background": "#faf4ff",
+                        "on-primary-container": "#14007e",
+                        "tertiary-fixed-dim": "#b091ff",
+                        "on-error": "#ffefef",
+                        "secondary-dim": "#00557b",
+                        "surface-container-highest": "#e2d7ff",
+                        "surface-tint": "#4a40e0",
+                        "on-primary-fixed-variant": "#1a0099",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary-fixed": "#000000",
+                        "surface-container": "#ede4ff",
+                        "outline": "#7b719c",
+                        "tertiary": "#6a37d4",
+                        "primary-dim": "#3d30d4",
+                        "secondary-container": "#a4d8ff",
+                        "error": "#b41340",
+                        "on-error-container": "#510017",
+                        "surface-dim": "#dacdff",
+                        "inverse-primary": "#8582ff",
+                        "error-dim": "#a70138",
+                        "inverse-on-surface": "#a296c4",
+                        "tertiary-fixed": "#bda2ff",
+                        "tertiary-container": "#bda2ff",
+                        "primary-fixed": "#9795ff",
+                        "surface-bright": "#faf4ff",
+                        "secondary": "#00628c",
+                        "inverse-surface": "#10062d",
+                        "on-tertiary-container": "#3c0091",
+                        "on-tertiary": "#f8f0ff",
+                        "surface-container-high": "#e8deff",
+                        "surface-variant": "#e2d7ff",
+                        "surface": "#faf4ff",
+                        "primary-fixed-dim": "#8885ff",
+                        "on-surface-variant": "#5f557f",
+                        "primary": "#4a40e0",
+                        "error-container": "#f74b6d",
+                        "on-tertiary-fixed": "#1f0052",
+                        "on-primary": "#f4f1ff",
+                        "on-tertiary-fixed-variant": "#4600a8",
+                        "on-secondary": "#e9f4ff",
+                        "secondary-fixed": "#a4d8ff",
+                        "surface-container-low": "#f5eeff",
+                        "outline-variant": "#b2a6d5",
+                        "on-secondary-fixed": "#003853",
+                        "tertiary-dim": "#5e26c7",
+                        "on-surface": "#32294f",
+                        "on-secondary-container": "#004c6f",
+                        "on-secondary-fixed-variant": "#00567c",
+                        "primary-container": "#9795ff",
+                        "on-background": "#32294f"
+                    },
+                    fontFamily: {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "8px", "lg": "12px", "xl": "16px", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        body { font-family: 'Inter', 'PingFang SC', sans-serif; }
+        .glass-effect {
+            background: rgba(226, 215, 255, 0.7);
+            backdrop-filter: blur(20px);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background selection:bg-primary-container selection:text-on-primary-container">
+<!-- SideNavBar -->
+<aside class="h-screen w-64 fixed left-0 top-0 overflow-y-auto z-40 bg-[#f5eeff] dark:bg-slate-900 font-['Manrope'] antialiased text-sm font-medium transition-all">
+<div class="flex flex-col h-full py-4 gap-2">
+<!-- Branding -->
+<div class="mb-8 px-6 flex items-center gap-3">
+<div class="w-10 h-10 rounded-xl bg-gradient-to-br from-[#4a40e0] to-[#6a37d4] flex items-center justify-center text-white shadow-lg">
+<span class="material-symbols-outlined">database</span>
+</div>
+<div>
+<h1 class="text-lg font-bold text-[#4a40e0]">Synthetix AI</h1>
+<p class="text-[10px] text-outline uppercase tracking-widest font-bold">Digital Curator</p>
+</div>
+</div>
+<!-- Navigation Links -->
+<nav class="flex-1 space-y-1 px-2">
+<a class="text-slate-600 dark:text-slate-400 p-3 mx-2 flex items-center gap-3 hover:bg-[#e8deff] dark:hover:bg-slate-800 transition-colors rounded-xl group" href="#">
+<span class="material-symbols-outlined group-hover:translate-x-1 transition-transform duration-200">dashboard</span>
+<span>Dashboard</span>
+</a>
+<a class="text-slate-600 dark:text-slate-400 p-3 mx-2 flex items-center gap-3 hover:bg-[#e8deff] dark:hover:bg-slate-800 transition-colors rounded-xl group" href="#">
+<span class="material-symbols-outlined group-hover:translate-x-1 transition-transform duration-200">forum</span>
+<span>Chat</span>
+</a>
+<!-- Active Tab: Knowledge -->
+<a class="bg-[#ffffff] dark:bg-slate-800 text-[#4a40e0] dark:text-indigo-300 rounded-xl shadow-sm p-3 mx-2 flex items-center gap-3" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">database</span>
+<span>Knowledge</span>
+</a>
+<a class="text-slate-600 dark:text-slate-400 p-3 mx-2 flex items-center gap-3 hover:bg-[#e8deff] dark:hover:bg-slate-800 transition-colors rounded-xl group" href="#">
+<span class="material-symbols-outlined group-hover:translate-x-1 transition-transform duration-200">storefront</span>
+<span>Marketplace</span>
+</a>
+<a class="text-slate-600 dark:text-slate-400 p-3 mx-2 flex items-center gap-3 hover:bg-[#e8deff] dark:hover:bg-slate-800 transition-colors rounded-xl group" href="#">
+<span class="material-symbols-outlined group-hover:translate-x-1 transition-transform duration-200">history</span>
+<span>History</span>
+</a>
+<a class="text-slate-600 dark:text-slate-400 p-3 mx-2 flex items-center gap-3 hover:bg-[#e8deff] dark:hover:bg-slate-800 transition-colors rounded-xl group" href="#">
+<span class="material-symbols-outlined group-hover:translate-x-1 transition-transform duration-200">monitoring</span>
+<span>Analytics</span>
+</a>
+</nav>
+<!-- CTA Button -->
+<div class="px-6 mb-4">
+<button class="w-full bg-primary text-on-primary py-2.5 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all">
+<span class="material-symbols-outlined text-sm">add</span>
+<span>New Analysis</span>
+</button>
+</div>
+<!-- Footer Navigation -->
+<div class="mt-auto border-t border-outline-variant/20 pt-4 px-2 space-y-1">
+<a class="text-slate-600 dark:text-slate-400 p-3 mx-2 flex items-center gap-3 hover:bg-[#e8deff] dark:hover:bg-slate-800 transition-colors rounded-xl" href="#">
+<span class="material-symbols-outlined">help</span>
+<span>Support</span>
+</a>
+<a class="text-slate-600 dark:text-slate-400 p-3 mx-2 flex items-center gap-3 hover:bg-[#e8deff] dark:hover:bg-slate-800 transition-colors rounded-xl" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span>Sign Out</span>
+</a>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-64 min-h-screen">
+<!-- TopNavBar -->
+<header class="sticky top-0 w-full h-20 z-40 bg-[#faf4ff]/70 dark:bg-slate-950/70 backdrop-blur-xl flex items-center justify-between px-8 gap-6">
+<div class="flex items-center flex-1 max-w-xl">
+<div class="relative w-full group">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline">search</span>
+<input class="w-full bg-surface-container-low border-none rounded-full py-2.5 pl-12 pr-4 text-sm focus:ring-2 focus:ring-[#4a40e0]/20 transition-all" placeholder="搜索知识库文档、标签或配置..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="hover:bg-white/50 dark:hover:bg-slate-800/50 rounded-full p-2 transition-all">
+<span class="material-symbols-outlined text-on-surface-variant">history</span>
+</button>
+<button class="hover:bg-white/50 dark:hover:bg-slate-800/50 rounded-full p-2 transition-all relative">
+<span class="material-symbols-outlined text-on-surface-variant">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full border-2 border-background"></span>
+</button>
+<div class="h-8 w-[1px] bg-outline-variant/30 mx-2"></div>
+<div class="flex items-center gap-3">
+<img alt="User Profile" class="w-10 h-10 rounded-full ring-2 ring-primary-container/20" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDPh24nEXQNFmn_6suqIs5N_7NI9azql_xB0LctYPQOO4xqbtd5ZmaGfv65TBpfFJxRt3piKBv-7J3pQLP5WGu0ue36mucWJUwYzOrxHi9mrZ0RhrmEmDx9DYnoGN4Lgwcf3umy5I-PKwtn6QDv9InvEe_5bJxTxwDizBcyCuKzaO2PlIycpBBv2MoqZxe3l6N6H35wO5rtLaczAUTnL1yet20YUvIhtvwDPbjMorplWLmtDcWm38nRMWDvGu-Ql8de0WURtIKWEOKc"/>
+<div class="hidden lg:block text-right">
+<p class="text-sm font-bold text-on-surface">Curator Admin</p>
+<p class="text-[10px] text-outline">高级管理员</p>
+</div>
+</div>
+</div>
+</header>
+<!-- Page Content -->
+<div class="p-8 max-w-7xl mx-auto space-y-8">
+<!-- Hero / Welcome Section -->
+<section class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+<div>
+<h2 class="text-4xl font-headline font-extrabold tracking-tight text-on-surface">知识库管理</h2>
+<p class="text-on-surface-variant mt-2 max-w-lg">构建企业的智能神经系统。在此上传文档、配置 RAG 检索参数并监控向量化进度。</p>
+</div>
+<div class="flex gap-3">
+<button class="bg-primary text-on-primary px-6 py-3 rounded-lg font-semibold flex items-center gap-2 shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all">
+<span class="material-symbols-outlined">upload</span>
+<span>上传文档</span>
+</button>
+<button class="bg-secondary-container text-on-secondary-container px-6 py-3 rounded-lg font-semibold flex items-center gap-2 hover:bg-secondary-container/80 transition-all">
+<span class="material-symbols-outlined">language</span>
+<span>抓取 URL</span>
+</button>
+</div>
+</section>
+<!-- Main Grid -->
+<div class="grid grid-cols-12 gap-6">
+<!-- RAG Configuration Card -->
+<div class="col-span-12 lg:col-span-4 space-y-6">
+<div class="bg-surface-container-low p-6 rounded-xl space-y-6">
+<div class="flex items-center justify-between">
+<h3 class="text-lg font-headline font-bold text-on-surface">RAG 核心配置</h3>
+<span class="material-symbols-outlined text-primary">settings_suggest</span>
+</div>
+<div class="space-y-4">
+<div class="space-y-2">
+<div class="flex justify-between text-sm">
+<label class="font-medium text-on-surface-variant">Top-k (检索数量)</label>
+<span class="text-primary font-bold">5</span>
+</div>
+<input class="w-full accent-primary h-1.5 bg-surface-container-high rounded-full appearance-none cursor-pointer" type="range"/>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between text-sm">
+<label class="font-medium text-on-surface-variant">Similarity Threshold</label>
+<span class="text-primary font-bold">0.82</span>
+</div>
+<input class="w-full accent-primary h-1.5 bg-surface-container-high rounded-full appearance-none cursor-pointer" type="range"/>
+<p class="text-[11px] text-outline">较低阈值会增加召回率但可能引入噪音。</p>
+</div>
+<div class="space-y-2">
+<label class="text-sm font-medium text-on-surface-variant">分块策略 (Chunking)</label>
+<select class="w-full bg-surface-container-lowest border-none rounded-lg text-sm p-3 focus:ring-2 focus:ring-primary/20">
+<option>语义化自动切分 (推荐)</option>
+<option>固定字符数 (512 tokens)</option>
+<option>按段落强制切分</option>
+</select>
+</div>
+</div>
+<button class="w-full py-3 border-2 border-primary/20 text-primary font-bold rounded-lg hover:bg-primary/5 transition-colors">
+                        保存全局配置
+                    </button>
+</div>
+<!-- Storage Summary -->
+<div class="bg-gradient-to-br from-tertiary to-primary p-6 rounded-xl text-white">
+<div class="flex items-center gap-3 mb-4">
+<span class="material-symbols-outlined">memory</span>
+<span class="text-sm font-bold">向量数据库负载</span>
+</div>
+<div class="text-3xl font-headline font-black mb-1">1,248,302</div>
+<p class="text-xs text-white/70 mb-4">已索引的向量总数</p>
+<div class="flex justify-between text-xs mt-4 border-t border-white/10 pt-4">
+<span>维度: 1536 (OpenAI)</span>
+<span>健康度: 99.9%</span>
+</div>
+</div>
+</div>
+<!-- Datasets Table -->
+<div class="col-span-12 lg:col-span-8 bg-surface-container-lowest rounded-xl shadow-[0_24px_40px_rgba(50,41,79,0.04)] overflow-hidden">
+<div class="p-6 border-b border-surface-container-low flex items-center justify-between">
+<h3 class="text-lg font-headline font-bold text-on-surface">文档与向量化状态</h3>
+<div class="flex gap-2">
+<span class="bg-secondary-container/30 text-secondary text-[10px] px-2 py-1 rounded-full font-bold">PDF: 42</span>
+<span class="bg-tertiary-container/30 text-tertiary text-[10px] px-2 py-1 rounded-full font-bold">Web: 18</span>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left text-sm">
+<thead>
+<tr class="text-outline uppercase text-[10px] font-bold tracking-widest border-b border-surface-container-low">
+<th class="px-6 py-4">文件名 / 源</th>
+<th class="px-6 py-4">状态</th>
+<th class="px-6 py-4">向量维度</th>
+<th class="px-6 py-4">大小</th>
+<th class="px-6 py-4 text-right">操作</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-container-low">
+<!-- Rows Verbatim from Source -->
+<tr class="group hover:bg-surface-container-low/50 transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded bg-red-50 flex items-center justify-center text-red-600">
+<span class="material-symbols-outlined">picture_as_pdf</span>
+</div>
+<div>
+<p class="font-bold text-on-surface">2023_年终财务报告.pdf</p>
+<p class="text-[11px] text-outline">上传于 2小时前</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center gap-1.5 py-1 px-3 rounded-full bg-green-100 text-green-700 text-[11px] font-bold">
+<span class="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                                        已索引
+                                    </span>
+</td>
+<td class="px-6 py-4 font-mono text-outline">1536d</td>
+<td class="px-6 py-4 text-on-surface-variant">4.2 MB</td>
+<td class="px-6 py-4 text-right">
+<button class="opacity-0 group-hover:opacity-100 transition-opacity p-2 hover:bg-surface-container-high rounded-full text-on-surface-variant">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+<tr class="group hover:bg-surface-container-low/50 transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded bg-blue-50 flex items-center justify-center text-blue-600">
+<span class="material-symbols-outlined">link</span>
+</div>
+<div>
+<p class="font-bold text-on-surface">https://docs.company.ai/intro</p>
+<p class="text-[11px] text-outline">抓取自 官方文档</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center gap-1.5 py-1 px-3 rounded-full bg-blue-100 text-blue-700 text-[11px] font-bold">
+<span class="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></span>
+                                        向量化中 88%
+                                    </span>
+</td>
+<td class="px-6 py-4 font-mono text-outline">1536d</td>
+<td class="px-6 py-4 text-on-surface-variant">128 KB</td>
+<td class="px-6 py-4 text-right">
+<button class="opacity-0 group-hover:opacity-100 transition-opacity p-2 hover:bg-surface-container-high rounded-full text-on-surface-variant">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="p-4 bg-surface-container-low/30 flex items-center justify-between">
+<p class="text-[11px] text-on-surface-variant font-medium">显示 4 / 60 个文档</p>
+<div class="flex gap-2">
+<button class="p-2 bg-surface-container-lowest rounded-lg border border-surface-container-high hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-sm">chevron_left</span>
+</button>
+<button class="p-2 bg-surface-container-lowest rounded-lg border border-surface-container-high hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-sm">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom Action Cards (Bento style) -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="p-6 rounded-xl bg-surface-container-high/50 border border-transparent hover:border-primary/20 transition-all group">
+<div class="w-10 h-10 rounded-full bg-white flex items-center justify-center text-primary mb-4 shadow-sm">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+</div>
+<h4 class="font-bold text-on-surface mb-2">智能重排 (Rerank)</h4>
+<p class="text-xs text-on-surface-variant leading-relaxed">启用后将利用更高精度的模型对检索结果进行二次排序，提升回答准确率率。</p>
+<div class="mt-4 flex items-center gap-2">
+<div class="w-10 h-5 bg-primary rounded-full relative">
+<div class="absolute right-1 top-1 w-3 h-3 bg-white rounded-full"></div>
+</div>
+<span class="text-[10px] font-bold text-primary">已开启</span>
+</div>
+</div>
+<div class="p-6 rounded-xl bg-surface-container-high/50 border border-transparent hover:border-primary/20 transition-all group">
+<div class="w-10 h-10 rounded-full bg-white flex items-center justify-center text-secondary mb-4 shadow-sm">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">history_edu</span>
+</div>
+<h4 class="font-bold text-on-surface mb-2">多路召回策略</h4>
+<p class="text-xs text-on-surface-variant leading-relaxed">结合向量检索与关键词检索 (BM25)，在专有名词和模糊语义中取得平衡。</p>
+<button class="mt-4 text-[10px] font-bold text-secondary flex items-center gap-1 group-hover:gap-2 transition-all">
+                    配置权重 <span class="material-symbols-outlined text-xs">arrow_forward</span>
+</button>
+</div>
+<div class="p-6 rounded-xl bg-surface-container-high/50 border border-transparent hover:border-primary/20 transition-all group">
+<div class="w-10 h-10 rounded-full bg-white flex items-center justify-center text-tertiary mb-4 shadow-sm">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">cleaning_services</span>
+</div>
+<h4 class="font-bold text-on-surface mb-2">文档清洗任务</h4>
+<p class="text-xs text-on-surface-variant leading-relaxed">自动识别并剔除文档中的乱码、广告、重复段落，保证知识库的纯净度。</p>
+<div class="mt-4 flex -space-x-2">
+<div class="w-6 h-6 rounded-full bg-tertiary-container border-2 border-white flex items-center justify-center text-[8px] font-bold">JS</div>
+<div class="w-6 h-6 rounded-full bg-secondary-container border-2 border-white flex items-center justify-center text-[8px] font-bold">PY</div>
+<div class="w-6 h-6 rounded-full bg-surface-container border-2 border-white flex items-center justify-center text-[8px] font-bold text-outline">+3</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Floating Action Button -->
+<button class="fixed bottom-8 right-8 w-14 h-14 bg-primary text-on-primary rounded-full shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-50">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">smart_toy</span>
+</button>
+</body></html>

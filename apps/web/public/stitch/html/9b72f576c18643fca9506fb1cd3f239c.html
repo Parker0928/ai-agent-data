@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Synthetix Intelligence - History</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "secondary-fixed-dim": "#81ccff",
+                        "surface-bright": "#faf4ff",
+                        "secondary-fixed": "#a4d8ff",
+                        "inverse-on-surface": "#a296c4",
+                        "error-dim": "#a70138",
+                        "error-container": "#f74b6d",
+                        "on-tertiary-fixed-variant": "#4600a8",
+                        "inverse-primary": "#8582ff",
+                        "error": "#b41340",
+                        "inverse-surface": "#10062d",
+                        "surface-container-high": "#e8deff",
+                        "on-primary-container": "#14007e",
+                        "tertiary-fixed-dim": "#b091ff",
+                        "on-tertiary-fixed": "#1f0052",
+                        "surface-container-highest": "#e2d7ff",
+                        "on-tertiary": "#f8f0ff",
+                        "on-surface": "#32294f",
+                        "on-error-container": "#510017",
+                        "secondary-dim": "#00557b",
+                        "on-tertiary-container": "#3c0091",
+                        "tertiary-fixed": "#bda2ff",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary-fixed": "#003853",
+                        "surface-container-low": "#f5eeff",
+                        "primary": "#4a40e0",
+                        "on-secondary": "#e9f4ff",
+                        "on-secondary-fixed-variant": "#00567c",
+                        "primary-fixed-dim": "#8885ff",
+                        "on-primary": "#f4f1ff",
+                        "surface-container": "#ede4ff",
+                        "surface-variant": "#e2d7ff",
+                        "tertiary-dim": "#5e26c7",
+                        "on-primary-fixed-variant": "#1a0099",
+                        "outline": "#7b719c",
+                        "background": "#faf4ff",
+                        "on-background": "#32294f",
+                        "on-surface-variant": "#5f557f",
+                        "tertiary": "#6a37d4",
+                        "secondary-container": "#a4d8ff",
+                        "surface-dim": "#dacdff",
+                        "primary-container": "#9795ff",
+                        "surface-tint": "#4a40e0",
+                        "outline-variant": "#b2a6d5",
+                        "on-error": "#ffefef",
+                        "tertiary-container": "#bda2ff",
+                        "primary-dim": "#3d30d4",
+                        "primary-fixed": "#9795ff",
+                        "secondary": "#00628c",
+                        "on-primary-fixed": "#000000",
+                        "surface": "#faf4ff",
+                        "on-secondary-container": "#004c6f"
+                    },
+                    fontFamily: {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3 { font-family: 'Manrope', sans-serif; }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen">
+<!-- SideNavBar Component -->
+<aside class="h-screen w-64 fixed left-0 top-0 overflow-y-auto z-40 bg-surface-container-low flex flex-col h-full py-4 gap-2">
+<div class="px-6 py-4 mb-2 flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-on-primary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">dataset</span>
+</div>
+<div>
+<h2 class="text-lg font-bold text-primary leading-tight">Synthetix AI</h2>
+<p class="text-[10px] text-on-surface-variant uppercase tracking-widest font-bold">Digital Curator</p>
+</div>
+</div>
+<div class="px-4 mb-6">
+<button class="w-full py-3 px-4 bg-primary text-on-primary rounded-xl font-headline font-semibold text-sm shadow-xl shadow-primary/20 hover:bg-primary-dim transition-all flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-sm">add</span>
+                New Analysis
+            </button>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="text-slate-600 dark:text-slate-400 p-3 mx-2 flex items-center gap-3 hover:bg-surface-container-high transition-colors rounded-xl group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary">dashboard</span>
+<span class="font-medium text-sm">Dashboard</span>
+</a>
+<a class="text-slate-600 dark:text-slate-400 p-3 mx-2 flex items-center gap-3 hover:bg-surface-container-high transition-colors rounded-xl group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary">forum</span>
+<span class="font-medium text-sm">Chat</span>
+</a>
+<a class="text-slate-600 dark:text-slate-400 p-3 mx-2 flex items-center gap-3 hover:bg-surface-container-high transition-colors rounded-xl group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary">database</span>
+<span class="font-medium text-sm">Knowledge</span>
+</a>
+<a class="text-slate-600 dark:text-slate-400 p-3 mx-2 flex items-center gap-3 hover:bg-surface-container-high transition-colors rounded-xl group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary">storefront</span>
+<span class="font-medium text-sm">Marketplace</span>
+</a>
+<!-- Active Tab: History -->
+<a class="bg-surface-container-lowest text-primary rounded-xl shadow-sm p-3 mx-2 flex items-center gap-3 translate-x-1 duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">history</span>
+<span class="font-bold text-sm">History</span>
+</a>
+<a class="text-slate-600 dark:text-slate-400 p-3 mx-2 flex items-center gap-3 hover:bg-surface-container-high transition-colors rounded-xl group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary">monitoring</span>
+<span class="font-medium text-sm">Analytics</span>
+</a>
+</nav>
+<div class="mt-auto pt-4 border-t border-outline-variant/10">
+<a class="text-slate-600 dark:text-slate-400 p-3 mx-2 flex items-center gap-3 hover:bg-surface-container-high transition-colors rounded-xl group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary">help</span>
+<span class="font-medium text-sm">Support</span>
+</a>
+<a class="text-slate-600 dark:text-slate-400 p-3 mx-2 flex items-center gap-3 hover:bg-surface-container-high transition-colors rounded-xl group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary">logout</span>
+<span class="font-medium text-sm">Sign Out</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="ml-64 min-h-screen relative">
+<!-- TopNavBar Component -->
+<header class="sticky top-0 z-50 bg-[#faf4ff] dark:bg-slate-950 backdrop-blur-xl bg-opacity-70 dark:bg-opacity-70 shadow-xl shadow-[#32294f]/5 flex justify-between items-center w-full px-8 py-4">
+<div class="flex items-center gap-4">
+<h1 class="text-xl font-black tracking-tighter text-primary font-headline">History &amp; Sessions</h1>
+</div>
+<div class="flex items-center gap-6">
+<!-- Search bar in navbar -->
+<div class="relative hidden lg:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-lg">search</span>
+<input class="bg-surface-container-low border-none rounded-full py-2 pl-10 pr-4 text-sm w-64 focus:ring-2 focus:ring-primary/20 transition-all" placeholder="Search sessions..." type="text"/>
+</div>
+<div class="flex items-center gap-2">
+<button class="p-2 rounded-full hover:bg-surface-container-high transition-all">
+<span class="material-symbols-outlined text-on-surface">notifications</span>
+</button>
+<button class="p-2 rounded-full hover:bg-surface-container-high transition-all">
+<span class="material-symbols-outlined text-on-surface">settings</span>
+</button>
+<div class="w-8 h-8 rounded-full overflow-hidden ml-2 bg-primary-container">
+<img alt="User profile avatar" class="w-full h-full object-cover" data-alt="Professional user portrait with soft background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD2ZjNvlnDkGbPRPy8DyTMNKd6jw9kajuD_CSDL_nr6lKkTmybT65KNi_8gyic1QU-eDMAgozyAMLgiNLLfRrjpuOK9AG-Aoj9NB8fLxXPXSmzCy6YpEBi0h1oqcmc8KgHIuSUfDQhKU-mu7urkddc9I7mKCMpPR4K55mcjydj7kdt7I3Ph7iIw5VzUnX9vQPj41zMUQHs0a7Pla6zc7QjSx_LEju9BLBvTO6Q09OtO22DVI_oXTeE5o49fJrie5JHv2YZmuTLglvgH"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Content Section -->
+<div class="p-8 max-w-7xl mx-auto">
+<!-- Filters & Bulk Actions -->
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+<div class="flex flex-wrap items-center gap-3">
+<button class="flex items-center gap-2 px-4 py-2 bg-surface-container-lowest rounded-xl text-sm font-medium text-on-surface shadow-sm hover:shadow-md transition-all">
+<span class="material-symbols-outlined text-lg">filter_list</span>
+                        All Agents
+                    </button>
+<button class="flex items-center gap-2 px-4 py-2 bg-surface-container-lowest rounded-xl text-sm font-medium text-on-surface shadow-sm hover:shadow-md transition-all">
+<span class="material-symbols-outlined text-lg">calendar_today</span>
+                        Past 30 Days
+                    </button>
+</div>
+<div class="flex items-center gap-3 bg-surface-container-high/50 p-1.5 rounded-2xl">
+<button class="flex items-center gap-2 px-4 py-1.5 text-sm font-semibold text-error hover:bg-error-container/20 rounded-xl transition-all">
+<span class="material-symbols-outlined text-lg">delete</span>
+                        Delete Selected
+                    </button>
+<div class="w-px h-6 bg-outline-variant/30"></div>
+<button class="flex items-center gap-2 px-4 py-1.5 text-sm font-semibold text-primary hover:bg-primary/10 rounded-xl transition-all">
+<span class="material-symbols-outlined text-lg">archive</span>
+                        Archive All
+                    </button>
+</div>
+</div>
+<!-- Sessions List (Asymmetric Grid) -->
+<div class="grid grid-cols-1 gap-4">
+<!-- Session Item 1: Featured/Active -->
+<div class="group bg-surface-container-lowest rounded-2xl p-5 shadow-xl shadow-[#32294f]/5 border border-primary/10 transition-all hover:translate-y-[-2px] hover:shadow-primary/10 flex items-center gap-6">
+<div class="flex-shrink-0 w-12 h-12 bg-primary-container/20 rounded-xl flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">psychology</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center gap-2 mb-1">
+<span class="px-2 py-0.5 bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-wider rounded">Curator Pro</span>
+<span class="text-on-surface-variant text-xs font-medium">Updated 2m ago</span>
+</div>
+<h3 class="text-base font-bold text-on-surface truncate">Quarterly Market Sentiment Analysis - Tech Sector</h3>
+<p class="text-sm text-on-surface-variant truncate">Summarizing 45 PDFs and 12 web sources for the Q3 report...</p>
+</div>
+<div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 hover:bg-surface-container-high rounded-lg text-on-surface-variant transition-colors" title="Rename">
+<span class="material-symbols-outlined text-lg">edit</span>
+</button>
+<button class="p-2 hover:bg-surface-container-high rounded-lg text-on-surface-variant transition-colors" title="Archive">
+<span class="material-symbols-outlined text-lg">archive</span>
+</button>
+<button class="p-2 hover:bg-error-container/20 rounded-lg text-error transition-colors" title="Delete">
+<span class="material-symbols-outlined text-lg">delete</span>
+</button>
+</div>
+<div class="flex-shrink-0">
+<span class="material-symbols-outlined text-outline-variant">chevron_right</span>
+</div>
+</div>
+<!-- Session Item 2 -->
+<div class="group bg-surface-container-lowest rounded-2xl p-5 shadow-sm hover:shadow-md transition-all flex items-center gap-6 border border-transparent hover:border-outline-variant/20">
+<div class="flex-shrink-0 w-12 h-12 bg-tertiary-container/20 rounded-xl flex items-center justify-center">
+<span class="material-symbols-outlined text-tertiary" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center gap-2 mb-1">
+<span class="px-2 py-0.5 bg-tertiary/10 text-tertiary text-[10px] font-bold uppercase tracking-wider rounded">Synthesis AI</span>
+<span class="text-on-surface-variant text-xs font-medium">Oct 24, 2023 • 14:20</span>
+</div>
+<h3 class="text-base font-semibold text-on-surface truncate">Competitor Feature Set Mapping</h3>
+<p class="text-sm text-on-surface-variant truncate">Comparing SaaS pricing models across 5 major competitors in the AI space.</p>
+</div>
+<div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 hover:bg-surface-container-high rounded-lg text-on-surface-variant transition-colors"><span class="material-symbols-outlined text-lg">edit</span></button>
+<button class="p-2 hover:bg-surface-container-high rounded-lg text-on-surface-variant transition-colors"><span class="material-symbols-outlined text-lg">archive</span></button>
+<button class="p-2 hover:bg-error-container/20 rounded-lg text-error transition-colors"><span class="material-symbols-outlined text-lg">delete</span></button>
+</div>
+<div class="flex-shrink-0">
+<span class="material-symbols-outlined text-outline-variant">chevron_right</span>
+</div>
+</div>
+<!-- Session Item 3 -->
+<div class="group bg-surface-container-lowest rounded-2xl p-5 shadow-sm hover:shadow-md transition-all flex items-center gap-6 border border-transparent hover:border-outline-variant/20">
+<div class="flex-shrink-0 w-12 h-12 bg-secondary-container/20 rounded-xl flex items-center justify-center">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">dataset</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center gap-2 mb-1">
+<span class="px-2 py-0.5 bg-secondary/10 text-secondary text-[10px] font-bold uppercase tracking-wider rounded">Data Miner</span>
+<span class="text-on-surface-variant text-xs font-medium">Oct 22, 2023 • 09:12</span>
+</div>
+<h3 class="text-base font-semibold text-on-surface truncate">Supply Chain Risk Assessment</h3>
+<p class="text-sm text-on-surface-variant truncate">Identifying potential bottlenecks in Southeast Asian logistics routes.</p>
+</div>
+<div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 hover:bg-surface-container-high rounded-lg text-on-surface-variant transition-colors"><span class="material-symbols-outlined text-lg">edit</span></button>
+<button class="p-2 hover:bg-surface-container-high rounded-lg text-on-surface-variant transition-colors"><span class="material-symbols-outlined text-lg">archive</span></button>
+<button class="p-2 hover:bg-error-container/20 rounded-lg text-error transition-colors"><span class="material-symbols-outlined text-lg">delete</span></button>
+</div>
+<div class="flex-shrink-0">
+<span class="material-symbols-outlined text-outline-variant">chevron_right</span>
+</div>
+</div>
+<!-- Session Item 4 (Archived Style) -->
+<div class="group bg-surface-container-low/40 rounded-2xl p-5 flex items-center gap-6 border border-dashed border-outline-variant/30 opacity-70 hover:opacity-100 transition-all">
+<div class="flex-shrink-0 w-12 h-12 bg-surface-variant rounded-xl flex items-center justify-center">
+<span class="material-symbols-outlined text-on-surface-variant">archive</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center gap-2 mb-1">
+<span class="text-on-surface-variant text-[10px] font-bold uppercase tracking-wider">Archived Session</span>
+<span class="text-on-surface-variant text-xs font-medium">Sep 15, 2023</span>
+</div>
+<h3 class="text-base font-medium text-on-surface truncate">Brand Identity Exploration v1</h3>
+<p class="text-sm text-on-surface-variant truncate">Drafting conceptual frameworks for the 2024 rebrand.</p>
+</div>
+<div class="flex items-center gap-2">
+<button class="px-4 py-1.5 text-xs font-bold text-primary hover:bg-primary/5 rounded-lg transition-all">UNARCHIVE</button>
+<button class="p-2 hover:bg-error-container/20 rounded-lg text-error transition-colors"><span class="material-symbols-outlined text-lg">delete</span></button>
+</div>
+</div>
+<!-- Session Item 5 -->
+<div class="group bg-surface-container-lowest rounded-2xl p-5 shadow-sm hover:shadow-md transition-all flex items-center gap-6 border border-transparent hover:border-outline-variant/20">
+<div class="flex-shrink-0 w-12 h-12 bg-primary-container/20 rounded-xl flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">analytics</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center gap-2 mb-1">
+<span class="px-2 py-0.5 bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-wider rounded">Insights AI</span>
+<span class="text-on-surface-variant text-xs font-medium">Sep 12, 2023 • 18:45</span>
+</div>
+<h3 class="text-base font-semibold text-on-surface truncate">User Behavior Pattern Discovery</h3>
+<p class="text-sm text-on-surface-variant truncate">Clustering mobile app session data to identify friction points.</p>
+</div>
+<div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 hover:bg-surface-container-high rounded-lg text-on-surface-variant transition-colors"><span class="material-symbols-outlined text-lg">edit</span></button>
+<button class="p-2 hover:bg-surface-container-high rounded-lg text-on-surface-variant transition-colors"><span class="material-symbols-outlined text-lg">archive</span></button>
+<button class="p-2 hover:bg-error-container/20 rounded-lg text-error transition-colors"><span class="material-symbols-outlined text-lg">delete</span></button>
+</div>
+<div class="flex-shrink-0">
+<span class="material-symbols-outlined text-outline-variant">chevron_right</span>
+</div>
+</div>
+</div>
+<!-- Pagination/Load More -->
+<div class="mt-12 flex justify-center">
+<button class="px-8 py-3 bg-surface-container-lowest border border-outline-variant/30 rounded-2xl font-headline font-bold text-sm text-on-surface shadow-sm hover:bg-surface-container-low hover:border-primary/30 transition-all flex items-center gap-3">
+                    Load More History
+                    <span class="material-symbols-outlined text-lg">expand_more</span>
+</button>
+</div>
+</div>
+<!-- Semantic Chip Legend (Float) -->
+<div class="fixed bottom-8 right-8 flex flex-col items-end gap-2 pointer-events-none">
+<div class="flex items-center gap-2 px-4 py-2 bg-white/70 backdrop-blur-md rounded-full shadow-lg border border-primary/10 pointer-events-auto">
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+<span class="text-xs font-bold text-on-surface tracking-tight">Syncing History...</span>
+</div>
+</div>
+</main>
+<!-- Modal Mockup (Rename State) - Hidden normally, included for UI layout demonstration -->
+<!-- 
+    <div class="fixed inset-0 z-[60] flex items-center justify-center bg-inverse-surface/40 backdrop-blur-sm">
+        <div class="bg-surface-container-lowest w-full max-w-md rounded-3xl p-8 shadow-2xl">
+            <h2 class="text-2xl font-black font-headline text-on-surface mb-2">Rename Session</h2>
+            <p class="text-sm text-on-surface-variant mb-6">Give your conversation a clear, descriptive name to help you find it later.</p>
+            <div class="space-y-4">
+                <div class="relative">
+                    <input type="text" value="Quarterly Market Sentiment Analysis" class="w-full bg-surface-container-low border-none rounded-xl py-3 px-4 text-on-surface focus:ring-2 focus:ring-primary transition-all">
+                </div>
+                <div class="flex justify-end gap-3 pt-4">
+                    <button class="px-6 py-2.5 rounded-xl font-bold text-on-surface-variant hover:bg-surface-container-high transition-all">Cancel</button>
+                    <button class="px-6 py-2.5 bg-primary text-on-primary rounded-xl font-bold shadow-lg shadow-primary/20 hover:scale-[1.02] transition-all">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    -->
+</body></html>

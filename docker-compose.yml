@@ -1,0 +1,94 @@
+name: ai-agent-data
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ai_agent_data
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d ai_agent_data']
+      interval: 3s
+      timeout: 5s
+      retries: 15
+      start_period: 10s
+    profiles: ["dev", "staging", "prod"]
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    image: ai-agent-data/web:${APP_ENV:-dev}
+    env_file:
+      - apps/web/.env.${APP_ENV:-development}
+    ports:
+      - "8080:80"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      api:
+        condition: service_healthy
+    profiles: ["staging", "prod"]
+
+  # Named volume hides host node_modules (Linux deps in container). If imports go missing
+  # after lockfile changes, run: docker compose --profile dev down && docker volume rm <project>_web_node_modules
+  web-dev:
+    image: node:20-alpine
+    working_dir: /repo
+    command: sh -c "npm install && npm ls dompurify --workspace @apps/web >/dev/null && npm run dev --workspace @apps/web -- --host 0.0.0.0 --port 5173"
+    env_file:
+      - apps/web/.env.development
+    environment:
+      CHOKIDAR_USEPOLLING: "true"
+      WATCHPACK_POLLING: "true"
+      # 容器内 Vite 代理须指向 api 服务名，不能用 127.0.0.1（那是 web 容器自身）
+      VITE_DEV_API_PROXY: http://api:3000
+      VITE_API_BASE_URL: ""
+    ports:
+      - "8080:5173"
+    volumes:
+      - .:/repo
+      - web_node_modules:/repo/node_modules
+    depends_on:
+      postgres:
+        condition: service_healthy
+      api:
+        condition: service_healthy
+    profiles: ["dev"]
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    image: ai-agent-data/api:${APP_ENV:-dev}
+    env_file:
+      - apps/api/.env.${APP_ENV:-development}
+    environment:
+      # 覆盖 .env 中的 localhost，使容器内通过服务名 postgres 连库
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/ai_agent_data
+    ports:
+      - "3020:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          'CMD-SHELL',
+          "node -e \"fetch('http://127.0.0.1:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\"",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 45s
+    restart: unless-stopped
+    profiles: ["dev", "staging", "prod"]
+
+volumes:
+  postgres_data:
+  web_node_modules:

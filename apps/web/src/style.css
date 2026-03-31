@@ -1,0 +1,665 @@
+@import "tailwindcss";
+
+@theme {
+  /* Bauhaus Neo-Brutalist tokens */
+  --color-primary: #1f5eff;
+  --color-primary-dim: #1149d1;
+  --color-primary-container: #dfe9ff;
+  --color-primary-fixed: #1f5eff;
+  --color-primary-fixed-dim: #1149d1;
+  --color-on-primary: #ffffff;
+  --color-on-primary-container: #0b1e4b;
+  --color-on-primary-fixed: #ffffff;
+  --color-on-primary-fixed-variant: #dfe9ff;
+  --color-secondary: #ef3b2d;
+  --color-secondary-dim: #cf2e22;
+  --color-secondary-container: #ffe3df;
+  --color-secondary-fixed: #ef3b2d;
+  --color-secondary-fixed-dim: #cf2e22;
+  --color-on-secondary: #ffffff;
+  --color-on-secondary-container: #5a1009;
+  --color-on-secondary-fixed: #ffffff;
+  --color-on-secondary-fixed-variant: #ffe3df;
+  --color-tertiary: #f5cf00;
+  --color-tertiary-dim: #d4b200;
+  --color-tertiary-container: #fff6c4;
+  --color-tertiary-fixed: #f5cf00;
+  --color-tertiary-fixed-dim: #d4b200;
+  --color-on-tertiary: #1b1b1b;
+  --color-on-tertiary-container: #463c00;
+  --color-on-tertiary-fixed: #1b1b1b;
+  --color-on-tertiary-fixed-variant: #463c00;
+  --color-error: #d92a2a;
+  --color-error-dim: #b81f1f;
+  --color-error-container: #ffd9d9;
+  --color-on-error: #ffffff;
+  --color-on-error-container: #520000;
+  --color-background: #f2eee8;
+  --color-surface: #f2eee8;
+  --color-surface-bright: #fbf9f5;
+  --color-surface-dim: #dfd8cf;
+  --color-surface-container: #e9e4dc;
+  --color-surface-container-low: #f5f1ea;
+  --color-surface-container-high: #dfd8cf;
+  --color-surface-container-highest: #d2cac1;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-variant: #dfd8cf;
+  --color-on-background: #141414;
+  --color-on-surface: #141414;
+  --color-on-surface-variant: #383838;
+  --color-outline: #141414;
+  --color-outline-variant: #141414;
+  --color-inverse-surface: #141414;
+  --color-inverse-on-surface: #f2eee8;
+  --color-inverse-primary: #88aaff;
+  --font-headline: "Space Grotesk", "Inter", "PingFang SC", sans-serif;
+  --font-body: "Inter", "PingFang SC", sans-serif;
+  --font-label: "Space Grotesk", "Inter", "PingFang SC", sans-serif;
+}
+
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+  font-style: normal;
+  font-weight: normal;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+
+  /* Material Symbols 需要启用 liga 连字映射，确保 monitoring/bolt 等能渲染成图标 */
+  font-feature-settings: 'liga' 1;
+
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  vertical-align: middle;
+}
+
+.glass-panel {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border: 2px solid #141414;
+  box-shadow: 6px 6px 0 #141414;
+}
+
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+:root {
+  --text: #141414;
+  --text-h: #141414;
+  --bg: #f2eee8;
+  --border: #141414;
+  --code-bg: #ffffff;
+  --accent: #1f5eff;
+  --accent-bg: rgba(31, 94, 255, 0.12);
+  --accent-border: #141414;
+  --social-bg: rgba(20, 20, 20, 0.06);
+  --shadow: 6px 6px 0 #141414;
+
+  --sans: "Inter", "PingFang SC", sans-serif;
+  --heading: "Space Grotesk", "Inter", "PingFang SC", sans-serif;
+  --mono: ui-monospace, Consolas, monospace;
+
+  font: 16px/1.5 var(--sans);
+  letter-spacing: 0.003em;
+  color-scheme: light;
+  color: var(--text);
+  background: var(--bg);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  @media (max-width: 1024px) {
+    font-size: 15px;
+  }
+}
+
+body {
+  margin: 0;
+  background-color: #f2eee8;
+  color: #141414;
+}
+
+/* 移动端：避免横屏根字号被 iOS 任意放大，保留 pinch-zoom（maximum-scale 在 index.html 放宽） */
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/* 全局页面主区域背景（与主题米底协调的半透明叠层 + 固定大图） */
+:root {
+  --main-hero-bg-image: url('https://parker0928.github.io/personal-website/hero-project-card.png');
+}
+
+main {
+  background-image:
+    linear-gradient(rgba(242, 238, 232, 0.82), rgba(242, 238, 232, 0.9)),
+    var(--main-hero-bg-image);
+  background-size: cover, cover;
+  background-position: center, center;
+  background-repeat: no-repeat, no-repeat;
+  background-attachment: fixed, fixed;
+}
+
+@media (max-width: 768px) {
+  main {
+    background-attachment: scroll, scroll;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* 全局 Neo-Brutalist 基础风格 */
+button,
+input,
+select,
+textarea {
+  font-family: var(--sans);
+}
+
+button {
+  border: 2px solid #141414;
+  border-radius: 0;
+  box-shadow: 3px 3px 0 #141414;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+button:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 #141414;
+}
+
+button:active {
+  transform: translate(1px, 1px);
+  box-shadow: 2px 2px 0 #141414;
+}
+
+/* 去掉文本类控件的浏览器默认皮肤（圆角、内阴影、箭头、search 清除钮、number 步进等） */
+input:not([type='checkbox']):not([type='radio']):not([type='file']):not([type='range']):not([type='hidden']):not([type='button']):not([type='submit']):not([type='reset']):not([type='image']),
+textarea {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  margin: 0;
+  outline: none;
+  border: 2px solid #141414 !important;
+  border-radius: 0 !important;
+  background: #ffffff;
+  box-shadow: inset 0 0 0 1px rgba(20, 20, 20, 0.02);
+}
+
+input[type='search']::-webkit-search-cancel-button,
+input[type='search']::-webkit-search-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+  display: none;
+}
+
+input[type='number']::-webkit-inner-spin-button,
+input[type='number']::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  appearance: none;
+  margin: 0;
+}
+input[type='number'] {
+  -moz-appearance: textfield;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: rgba(20, 20, 20, 0.42);
+  opacity: 1;
+}
+
+select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  margin: 0;
+  outline: none;
+  border: 2px solid #141414 !important;
+  border-radius: 0 !important;
+  background-color: #ffffff;
+  box-shadow: inset 0 0 0 1px rgba(20, 20, 20, 0.02);
+  cursor: pointer;
+}
+
+/* 非自定义下拉的 select：自绘箭头（composer-model-select 外层自有图标） */
+select:not(.composer-model-select) {
+  background-image: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%2212%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23141414%22 stroke-width=%222.5%22 stroke-linecap=%22square%22%3E%3Cpath d=%22M6 9l6 6 6-6%22/%3E%3C/svg%3E');
+  background-repeat: no-repeat;
+  background-position: right 0.65rem center;
+  background-size: 0.7rem;
+  padding-right: 2.25rem;
+}
+
+/* Chat 输入区「对话模型」下拉：胶囊形 + 外扩硬阴影，覆盖上面对 select 的直角与内阴影 */
+select.composer-model-select {
+  border-radius: 9999px !important;
+  background: #ffffff !important;
+  box-shadow:
+    2px 2px 0 #141414,
+    inset 0 0 0 1px rgba(20, 20, 20, 0.02) !important;
+}
+select.composer-model-select:hover {
+  box-shadow:
+    3px 3px 0 #141414,
+    inset 0 0 0 1px rgba(20, 20, 20, 0.02) !important;
+}
+select.composer-model-select:active {
+  box-shadow:
+    1px 1px 0 #141414,
+    inset 0 0 0 1px rgba(20, 20, 20, 0.02) !important;
+}
+
+/* Chat 侧栏会话重命名输入：在全局直角表单基础上略增内聚感 */
+input.session-rename-input {
+  box-shadow:
+    2px 2px 0 #141414,
+    inset 0 0 0 1px rgba(20, 20, 20, 0.02) !important;
+}
+input.session-rename-input:focus {
+  box-shadow:
+    2px 2px 0 #141414,
+    0 0 0 3px rgba(31, 94, 255, 0.2),
+    inset 0 0 0 1px rgba(20, 20, 20, 0.02) !important;
+}
+
+/* 范围滑块：自绘轨道/滑块（勿用 bg-surface-*，全局 !important 会破坏轨道） */
+input[type='range'].nb-range {
+  --nb-track-h: 8px;
+  --nb-thumb: 20px;
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 2rem;
+  min-height: 2rem;
+  margin: 0;
+  padding: 0;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  outline: none;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+input[type='range'].nb-range:focus {
+  outline: none;
+}
+input[type='range'].nb-range:focus-visible {
+  outline: 2px solid rgba(31, 94, 255, 0.5);
+  outline-offset: 4px;
+  border-radius: 6px;
+}
+input[type='range'].nb-range::-webkit-slider-runnable-track {
+  width: 100%;
+  height: var(--nb-track-h);
+  border-radius: 9999px;
+  background: #e9e4dc;
+  /* 用外描边代替轨道 border，避免 WebKit 里与 thumb 的 margin 计算错位 */
+  box-shadow: 0 0 0 2px #141414;
+  box-sizing: border-box;
+}
+input[type='range'].nb-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: var(--nb-thumb);
+  height: var(--nb-thumb);
+  box-sizing: border-box;
+  margin-top: calc((var(--nb-track-h) - var(--nb-thumb)) / 2);
+  border-radius: 50%;
+  background: #1f5eff;
+  border: 2px solid #141414;
+  box-shadow: 2px 2px 0 #141414;
+  cursor: grab;
+}
+input[type='range'].nb-range:active::-webkit-slider-thumb {
+  cursor: grabbing;
+}
+input[type='range'].nb-range::-moz-range-track {
+  width: 100%;
+  height: var(--nb-track-h);
+  border-radius: 9999px;
+  background: #e9e4dc;
+  border: 2px solid #141414;
+  box-sizing: border-box;
+}
+input[type='range'].nb-range::-moz-range-thumb {
+  width: var(--nb-thumb);
+  height: var(--nb-thumb);
+  box-sizing: border-box;
+  border: 2px solid #141414;
+  border-radius: 50%;
+  background: #1f5eff;
+  box-shadow: 2px 2px 0 #141414;
+  cursor: grab;
+}
+input[type='range'].nb-range::-moz-range-thumb:active {
+  cursor: grabbing;
+}
+input[type='range'].nb-range::-moz-focus-outer {
+  border: 0;
+}
+
+/* 常用卡片容器统一黑边硬阴影 */
+[class*="rounded-2xl"],
+[class*="rounded-xl"],
+[class*="rounded-lg"] {
+  border-radius: 0 !important;
+}
+
+.shadow-sm,
+.shadow-lg,
+.shadow-xl {
+  box-shadow: 6px 6px 0 #141414 !important;
+}
+
+.border,
+[class*="border-"] {
+  border-color: #141414 !important;
+}
+
+.bg-surface-container-lowest,
+.bg-surface-container-low,
+.bg-surface-container-high,
+.bg-surface-container {
+  background-color: #ffffff !important;
+}
+
+.font-headline {
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+}
+
+/* Reusable neo-brutalist utilities */
+/* If a Tailwind `bg-*` utility is provided, don't override it.
+   This prevents "white bg" from breaking cards like `bg-secondary text-on-secondary`. */
+.nb-card {
+  border: 2px solid #141414;
+  box-shadow: 6px 6px 0 #141414;
+}
+
+.nb-card:not([class*="bg-"]) {
+  background: #fff;
+}
+
+.nb-card-lg {
+  border: 2px solid #141414;
+  box-shadow: 8px 8px 0 #141414;
+}
+
+.nb-card-lg:not([class*="bg-"]) {
+  background: #fff;
+}
+
+.nb-btn {
+  border: 2px solid #141414;
+  box-shadow: 4px 4px 0 #141414;
+}
+
+.nb-btn-primary {
+  background: #1f5eff;
+  color: #fff;
+}
+
+.nb-btn-secondary {
+  background: #ef3b2d;
+  color: #fff;
+}
+
+.nb-btn-neutral {
+  background: #fff;
+  color: #141414;
+}
+
+.nb-pill {
+  border: 2px solid #141414;
+  font-weight: 700;
+}
+
+.nb-pill-primary {
+  background: #1f5eff;
+  color: #fff;
+}
+
+.nb-pill-secondary {
+  background: #ef3b2d;
+  color: #fff;
+}
+
+.nb-pill-tertiary {
+  background: #f5cf00;
+  color: #1b1b1b;
+}
+
+.nb-input {
+  background: #fff;
+  border: 2px solid #141414 !important;
+  border-radius: 9999px !important;
+  box-shadow: 3px 3px 0 #141414;
+}
+
+/* 不覆盖 Tailwind 工具类，仅作为无 class 时的后备 */
+h1:not([class*="font-"]),
+h2:not([class*="font-"]),
+h3:not([class*="font-"]) {
+  font-family: var(--heading);
+  color: var(--text-h);
+}
+p {
+  margin: 0;
+}
+
+code,
+.counter {
+  font-family: var(--mono);
+  display: inline-flex;
+  border-radius: 4px;
+  color: var(--text-h);
+}
+
+code {
+  font-size: 15px;
+  line-height: 135%;
+  padding: 4px 8px;
+  background: var(--code-bg);
+}
+
+.counter {
+  font-size: 16px;
+  padding: 5px 10px;
+  border-radius: 5px;
+  color: var(--accent);
+  background: var(--accent-bg);
+  border: 2px solid transparent;
+  transition: border-color 0.3s;
+  margin-bottom: 24px;
+
+  &:hover {
+    border-color: var(--accent-border);
+  }
+  &:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+}
+
+.hero {
+  position: relative;
+
+  .base,
+  .framework,
+  .vite {
+    inset-inline: 0;
+    margin: 0 auto;
+  }
+
+  .base {
+    width: 170px;
+    position: relative;
+    z-index: 0;
+  }
+
+  .framework,
+  .vite {
+    position: absolute;
+  }
+
+  .framework {
+    z-index: 1;
+    top: 34px;
+    height: 28px;
+    transform: perspective(2000px) rotateZ(300deg) rotateX(44deg) rotateY(39deg)
+      scale(1.4);
+  }
+
+  .vite {
+    z-index: 0;
+    top: 107px;
+    height: 26px;
+    width: auto;
+    transform: perspective(2000px) rotateZ(300deg) rotateX(40deg) rotateY(39deg)
+      scale(0.8);
+  }
+}
+
+#app {
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+#center {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+  place-content: center;
+  place-items: center;
+  flex-grow: 1;
+
+  @media (max-width: 1024px) {
+    padding: 32px 20px 24px;
+    gap: 18px;
+  }
+}
+
+#next-steps {
+  display: flex;
+  border-top: 1px solid var(--border);
+  text-align: left;
+
+  & > div {
+    flex: 1 1 0;
+    padding: 32px;
+    @media (max-width: 1024px) {
+      padding: 24px 20px;
+    }
+  }
+
+  .icon {
+    margin-bottom: 16px;
+    width: 22px;
+    height: 22px;
+  }
+
+  @media (max-width: 1024px) {
+    flex-direction: column;
+    text-align: center;
+  }
+}
+
+#docs {
+  border-right: 1px solid var(--border);
+
+  @media (max-width: 1024px) {
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+}
+
+#next-steps ul {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  gap: 8px;
+  margin: 32px 0 0;
+
+  .logo {
+    height: 18px;
+  }
+
+  a {
+    color: var(--text-h);
+    font-size: 16px;
+    border-radius: 6px;
+    background: var(--social-bg);
+    display: flex;
+    padding: 6px 12px;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    transition: box-shadow 0.3s;
+
+    &:hover {
+      box-shadow: var(--shadow);
+    }
+    .button-icon {
+      height: 18px;
+      width: 18px;
+    }
+  }
+
+  @media (max-width: 1024px) {
+    margin-top: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+
+    li {
+      flex: 1 1 calc(50% - 8px);
+    }
+
+    a {
+      width: 100%;
+      justify-content: center;
+      box-sizing: border-box;
+    }
+  }
+}
+
+#spacer {
+  height: 88px;
+  border-top: 1px solid var(--border);
+  @media (max-width: 1024px) {
+    height: 48px;
+  }
+}
+
+.ticks {
+  position: relative;
+  width: 100%;
+
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    top: -4.5px;
+    border: 5px solid transparent;
+  }
+
+  &::before {
+    left: 0;
+    border-left-color: var(--border);
+  }
+  &::after {
+    right: 0;
+    border-right-color: var(--border);
+  }
+}

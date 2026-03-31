@@ -1,0 +1,32 @@
+{
+  "name": "ai-agent-data-monorepo",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "turbo run dev --parallel",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "dev:web": "npm run dev --workspace @apps/web",
+    "dev:api": "npm run dev --workspace @apps/api",
+    "dev:db": "docker compose --profile dev up postgres -d",
+    "dev:local": "bash scripts/dev-local.sh",
+    "build:web": "npm run build --workspace @apps/web",
+    "build:api": "npm run build --workspace @apps/api",
+    "docker:dev": "docker compose --profile dev up --build",
+    "docker:dev:up": "bash scripts/dev-docker.sh",
+    "docker:dev:down": "docker compose --profile dev down",
+    "docker:dev:logs": "docker compose --profile dev logs -f web-dev api"
+  },
+  "devDependencies": {
+    "turbo": "^2.5.5"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "packageManager": "npm@10.9.0"
+}
