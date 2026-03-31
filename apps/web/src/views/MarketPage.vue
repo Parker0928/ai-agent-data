@@ -186,7 +186,17 @@ function closeDetail() {
 }
 
 function startChat(agent: AgentCard) {
-  router.push({ path: '/chat', query: { agent: agent.id } })
+  const hint = (agent.welcomeHint || '').trim()
+  router.push({
+    path: '/chat',
+    query: {
+      agent: agent.id,
+      agentLaunch: String(Date.now()),
+      ...(agent.name ? { agentName: agent.name } : {}),
+      ...(hint ? { agentHint: hint } : {}),
+      ...(agent.suggestedModel ? { agentModel: agent.suggestedModel } : {}),
+    },
+  })
 }
 
 onMounted(async () => {

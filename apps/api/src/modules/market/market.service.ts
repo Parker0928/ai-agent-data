@@ -16,19 +16,6 @@ export type MarketAgentDto = {
   pinned: boolean
 }
 
-const ENTERPRISE_FEATURE = {
-  title: '定制您的专属智能体？',
-  body: '我们提供企业级定制服务，结合您的行业知识和私有数据，打造可协作、可审计的专属 Agent 团队体系。',
-  primaryCta: '联系专家',
-  secondaryCta: '查看案例',
-}
-
-const KNOWLEDGE_HUB = {
-  title: '知识智能管家',
-  body: '自动构建企业知识网络，沉淀 FAQ 与最佳实践，支持跨部门问答与流程协同。',
-  tags: ['知识图谱', '语义检索', 'FAQ 生成'],
-}
-
 function parseTags(raw: unknown): string[] {
   if (Array.isArray(raw)) return raw.map((t) => String(t))
   if (raw && typeof raw === 'object') return []
@@ -68,6 +55,42 @@ function mapAgentRow(r: {
 @Injectable()
 export class MarketService {
   constructor(private readonly db: DatabaseService) {}
+
+  private async buildEnterpriseFeature(userId: string, catalogSize: number, pinnedSize: number) {
+    const stats = await this.db.query<{ docs: string; chunks: string }>(
+      `SELECT
+         (SELECT COUNT(*)::text FROM documents WHERE user_id = $1::uuid) AS docs,
+         (SELECT COUNT(*)::text FROM document_chunks WHERE user_id = $1::uuid) AS chunks`,
+      [userId],
+    )
+    const docs = Number(stats.rows[0]?.docs || 0)
+    const chunks = Number(stats.rows[0]?.chunks || 0)
+    return {
+      title: `已上线 ${catalogSize} 个智能体能力`,
+      body: `当前账号已置顶 ${pinnedSize} 个常用智能体，知识库累计 ${docs} 份文档 / ${chunks} 个分块。可继续按业务场景扩展企业工作流。`,
+      primaryCta: '联系专家',
+      secondaryCta: '查看案例',
+    }
+  }
+
+  private buildKnowledgeHub(catalog: MarketAgentDto[]) {
+    const tagSet = new Set<string>()
+    for (const a of catalog) {
+      for (const t of a.tags || []) {
+        const v = String(t || '').trim()
+        if (!v) continue
+        tagSet.add(v)
+        if (tagSet.size >= 6) break
+      }
+      if (tagSet.size >= 6) break
+    }
+    const topCategory = catalog[0]?.category || '通用'
+    return {
+      title: `知识智能管家 · ${topCategory}优先`,
+      body: '以下标签来自当前市场目录与已上架能力，可作为知识库建设与问答提示词设计的优先参考。',
+      tags: Array.from(tagSet).slice(0, 6),
+    }
+  }
 
   async listCategories() {
     const res = await this.db.query<{ category: string }>(
@@ -156,12 +179,15 @@ export class MarketService {
       this.listPinnedIds(userId),
     ])
 
+    const enterpriseFeature = await this.buildEnterpriseFeature(userId, catalog.length, pinnedIds.length)
+    const knowledgeHub = this.buildKnowledgeHub(catalog)
+
     return {
       catalog,
       categories,
       pinnedIds,
-      enterpriseFeature: ENTERPRISE_FEATURE,
-      knowledgeHub: KNOWLEDGE_HUB,
+      enterpriseFeature,
+      knowledgeHub,
     }
   }
 

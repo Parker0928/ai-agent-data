@@ -28,7 +28,7 @@
 | 根组件 | `App.vue`：当前为 `<RouterView />`（无额外全局装饰层） |
 | 路由 | `src/router/index.ts`：`/login`、`/register` 公开；`/` 下 `MainLayout`（需登录），子路由：`overview`、`chat`、`knowledge`、`market`、`history`、`analysis` |
 | 布局 | `MainLayout.vue`：固定侧栏 `AppSidebar` + 右侧内容区 |
-| 鉴权 | `composables/useAuth.ts` + `lib/apiFetch`：`localStorage` 存 `jwt_token`；路由前置 `fetchMe` |
+| 鉴权 | `composables/useAuth.ts` + `lib/apiFetch`：后端 `HttpOnly Cookie`；路由前置 `fetchMe` |
 | HTTP | `lib/apiClient.ts`：路径统一加 `/api`；开发期 Vite 代理 `/api` 与 `/auth`（`/auth` rewrite 到 `/api/auth`） |
 
 **依赖要点**：Vue 3、Vue Router 4、Tailwind 4、`marked` + `dompurify`（对话 Markdown 等）。
@@ -39,7 +39,7 @@
 
 ## 3. 后端 `apps/api`
 
-**入口** `src/main.ts`：Nest 工厂创建应用；**全局前缀 `api`**；`bodyParser` JSON 上限约 **18MB**（聊天附件）；CORS 放开。
+**入口** `src/main.ts`：Nest 工厂创建应用；**全局前缀 `api`**；`bodyParser` JSON 上限约 **18MB**（聊天附件）；CORS 白名单来自 `CORS_ORIGINS`。
 
 | 模块 | 职责概要 |
 |------|-----------|

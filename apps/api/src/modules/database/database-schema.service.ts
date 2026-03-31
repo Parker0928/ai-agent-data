@@ -1,7 +1,9 @@
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common'
 import { Pool } from 'pg'
 
-const schemaSql = `
+type SqlMigration = { id: string; sql: string }
+
+const migration001: SqlMigration = { id: '001_init_schema', sql: `
   CREATE EXTENSION IF NOT EXISTS vector;
   CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
@@ -71,9 +73,9 @@ const schemaSql = `
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
   );
-`
+` }
 
-const migrateSql = `
+const migration002: SqlMigration = { id: '002_business_tables_and_backfill', sql: `
   ALTER TABLE documents ADD COLUMN IF NOT EXISTS byte_length INTEGER;
   ALTER TABLE documents ADD COLUMN IF NOT EXISTS text_chars INTEGER;
   ALTER TABLE documents ADD COLUMN IF NOT EXISTS parsed_chunk_count INTEGER NOT NULL DEFAULT 0;
@@ -189,15 +191,43 @@ const migrateSql = `
   CREATE INDEX IF NOT EXISTS chat_sessions_user_active_idx
     ON chat_sessions (user_id, updated_at DESC)
     WHERE archived_at IS NULL;
-`
+` }
+
+const migrations: SqlMigration[] = [migration001, migration002]
 
 @Injectable()
 export class DatabaseSchemaService implements OnModuleInit {
   constructor(@Inject('PG_POOL') private readonly pool: Pool) {}
 
   async onModuleInit() {
-    await this.pool.query(schemaSql)
-    await this.pool.query(migrateSql)
+    const isProduction = (process.env.NODE_ENV || '').toLowerCase() === 'production'
+    const autoMigrate = process.env.DB_AUTO_MIGRATE === 'true' || !isProduction
+    if (!autoMigrate) return
+
+    await this.pool.query(`
+      CREATE TABLE IF NOT EXISTS schema_migrations (
+        id TEXT PRIMARY KEY,
+        applied_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      );
+    `)
+
+    for (const migration of migrations) {
+      const applied = await this.pool.query<{ id: string }>(
+        `SELECT id FROM schema_migrations WHERE id = $1 LIMIT 1`,
+        [migration.id],
+      )
+      if (applied.rows.length > 0) continue
+
+      await this.pool.query('BEGIN')
+      try {
+        await this.pool.query(migration.sql)
+        await this.pool.query(`INSERT INTO schema_migrations (id) VALUES ($1)`, [migration.id])
+        await this.pool.query('COMMIT')
+      } catch (e) {
+        await this.pool.query('ROLLBACK')
+        throw e
+      }
+    }
   }
 }
 

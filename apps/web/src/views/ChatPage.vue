@@ -98,6 +98,7 @@ let threadResizePinRaf = 0
 const lastStructured = ref<StructuredInsight | null>(null)
 /** 首屏加载会话/消息失败时在页内展示，避免未处理的 Promise 拒绝导致整页报错 */
 const pageError = ref<string | null>(null)
+const handlingMarketAgent = ref(false)
 
 const filteredSessions = computed(() => {
   const q = sessionSearch.value.trim().toLowerCase()
@@ -446,34 +447,87 @@ async function consumeMarketAgentPreset() {
   const raw = route.query.agent
   const agentId = typeof raw === 'string' ? raw.trim() : ''
   if (!agentId) return
+  if (handlingMarketAgent.value) return
 
+  handlingMarketAgent.value = true
   try {
-    const agent = await apiFetch<{
+    // 市场「开始对话」始终新建会话，确保每次都是新的 agent 对话上下文。
+    const created = await apiFetch<{ id: string }>('/chat/sessions', {
+      method: 'POST',
+      json: { title: '新会话' },
+    })
+    currentSessionId.value = created.id
+    messages.value = []
+    router.replace({ path: '/chat', query: { ...route.query, session: created.id } })
+    await refreshSessions()
+    await loadMessages(created.id)
+
+    const fallbackHint =
+      typeof route.query.agentHint === 'string' ? route.query.agentHint.trim() : ''
+    const fallbackName =
+      typeof route.query.agentName === 'string' ? route.query.agentName.trim() : ''
+    const fallbackModel =
+      typeof route.query.agentModel === 'string' ? route.query.agentModel.trim() : ''
+
+    let agent: {
       welcomeHint?: string | null
       name?: string
       suggestedModel?: string | null
-    }>(`/market/agents/${encodeURIComponent(agentId)}`, { method: 'GET' })
+    } | null = null
+    try {
+      agent = await apiFetch<{
+        welcomeHint?: string | null
+        name?: string
+        suggestedModel?: string | null
+      }>(`/market/agents/${encodeURIComponent(agentId)}`, { method: 'GET' })
+    } catch {
+      agent = null
+    }
 
     if (
-      agent.suggestedModel &&
+      (agent?.suggestedModel || fallbackModel) &&
       chatConfig.value?.models?.length &&
-      chatConfig.value.models.includes(agent.suggestedModel)
+      chatConfig.value.models.includes((agent?.suggestedModel || fallbackModel) as string)
     ) {
-      selectedModel.value = agent.suggestedModel
+      selectedModel.value = (agent?.suggestedModel || fallbackModel) as string
     }
 
-    if (!inputText.value.trim()) {
-      if (agent.welcomeHint) inputText.value = agent.welcomeHint
-      else if (agent.name) inputText.value = `请作为「${agent.name}」协助我：`
+    const presetText =
+      (agent?.welcomeHint || '').trim() ||
+      fallbackHint ||
+      ((agent?.name || fallbackName) ? `请作为「${agent?.name || fallbackName}」协助我：` : '')
+
+    if (presetText) {
+      if (isSending.value) {
+        pageError.value = '当前有回复在生成中，请稍后再试。'
+        inputText.value = presetText
+        await nextTick()
+        adjustComposerHeight()
+        return
+      }
+      // 市场「开始对话」应直接触发一次 agent 引导会话，避免页面看起来是空白。
+      await sendMessageWithContent(presetText)
+      inputText.value = ''
+    } else if (!inputText.value.trim()) {
+      inputText.value = presetText
+      await nextTick()
+      adjustComposerHeight()
     }
-    await nextTick()
-    adjustComposerHeight()
+    if (!presetText) {
+      pageError.value = '未获取到智能体提示词，请返回市场页重试。'
+    }
   } catch {
-    /* 市场接口不可用时仍正常进入对话 */
+    pageError.value = '智能体会话初始化失败，请重试。'
+  } finally {
+    handlingMarketAgent.value = false
   }
 
   const q = { ...route.query } as Record<string, string | string[] | undefined>
   delete q.agent
+  delete q.agentLaunch
+  delete q.agentName
+  delete q.agentHint
+  delete q.agentModel
   router.replace({ path: '/chat', query: q })
 }
 
@@ -516,7 +570,10 @@ async function ensureSession() {
     currentSessionId.value = sessions.value.find((s) => !s.archived)?.id ?? sessions.value[0].id
   }
   if (currentSessionId.value && route.query.session !== currentSessionId.value) {
-    router.replace({ path: '/chat', query: { session: currentSessionId.value } })
+    router.replace({
+      path: '/chat',
+      query: { ...(route.query as Record<string, any>), session: currentSessionId.value },
+    })
   }
 }
 
@@ -527,7 +584,10 @@ async function selectSession(sessionId: string) {
     return
   }
   currentSessionId.value = sessionId
-  router.replace({ path: '/chat', query: { session: sessionId } })
+  router.replace({
+    path: '/chat',
+    query: { ...(route.query as Record<string, any>), session: sessionId },
+  })
   await loadMessages(sessionId)
   sessionsPanelOpen.value = false
 }
@@ -544,7 +604,10 @@ async function createNewChat() {
     messages.value = []
     lastRagChunkCount.value = null
     lastStructured.value = null
-    router.replace({ path: '/chat', query: { session: created.id } })
+    router.replace({
+      path: '/chat',
+      query: { ...(route.query as Record<string, any>), session: created.id },
+    })
     sessionsPanelOpen.value = false
     await nextTick()
     attachThreadContentObserver()
@@ -856,6 +919,25 @@ watch(
     if (!sessions.value.some((s) => s.id === q)) return
     currentSessionId.value = q
     await loadMessages(q)
+  },
+)
+
+watch(
+  () => route.query.agent,
+  async (agent) => {
+    if (typeof agent !== 'string' || !agent.trim()) return
+    if (!currentSessionId.value) return
+    await consumeMarketAgentPreset()
+  },
+)
+
+watch(
+  () => route.query.agentLaunch,
+  async (launch) => {
+    if (typeof launch !== 'string' || !launch.trim()) return
+    if (typeof route.query.agent !== 'string' || !route.query.agent.trim()) return
+    if (!currentSessionId.value) return
+    await consumeMarketAgentPreset()
   },
 )
 

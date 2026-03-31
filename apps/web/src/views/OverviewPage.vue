@@ -117,6 +117,25 @@ const filteredAgents = computed(() => {
   )
 })
 
+const summarySkeleton = [1, 2, 3, 4]
+const metricsSkeleton = [1, 2, 3]
+const activitySkeleton = [1, 2, 3, 4]
+const agentsSkeleton = [1, 2, 3, 4]
+
+const totalMessages = computed(
+  () => summary.value.userMessagesLast30d + summary.value.assistantMessagesLast30d,
+)
+
+const assistantReplyRate = computed(() => {
+  if (!summary.value.userMessagesLast30d) return 0
+  return (summary.value.assistantMessagesLast30d / summary.value.userMessagesLast30d) * 100
+})
+
+const lastUpdatedLabel = computed(() => {
+  if (!activity.value.length) return '暂无最近更新'
+  return `最近更新：${timeAgoLabel(activity.value[0].occurredAt)}`
+})
+
 const trendBars = computed(() => {
   const { labels, bars, counts } = taskTrend.value
   return labels.map((label, i) => ({
@@ -150,6 +169,14 @@ function formatApiRequests(n: number) {
 function formatLatency(ms: number | null) {
   if (ms == null) return '—'
   return `${ms}`
+}
+
+function compactNum(n: number) {
+  return n >= 1000 ? `${(n / 1000).toFixed(n >= 10000 ? 0 : 1)}k` : `${n}`
+}
+
+function pulseClass() {
+  return 'animate-pulse bg-surface-container-high/70'
 }
 
 function activityDotClass(role: 'user' | 'assistant') {
@@ -230,7 +257,7 @@ watch(trendWindow, () => {
 <template>
   <main data-page-route="/overview" class="min-h-screen relative bg-background text-on-background">
     <header
-      class="sticky top-[calc(3.5rem+env(safe-area-inset-top,0px))] z-40 flex w-full items-center justify-between gap-3 border-b-4 border-black bg-background px-4 py-3 shadow-xl sm:gap-6 sm:px-6 sm:py-4 lg:top-0 lg:px-8"
+      class="sticky top-[calc(3.5rem+env(safe-area-inset-top,0px))] z-40 flex w-full items-center justify-between gap-3 border-b-4 border-black bg-background/95 px-4 py-3 shadow-xl backdrop-blur-sm sm:gap-6 sm:px-6 sm:py-4 lg:top-0 lg:px-8"
     >
       <div class="flex items-center gap-8 min-w-0 shrink" data-section-path="overview.header-nav">
         <h1 class="shrink-0 text-lg font-black tracking-tighter text-primary font-headline sm:text-xl">系统概览</h1>
@@ -297,15 +324,23 @@ watch(trendWindow, () => {
     <div class="mx-auto max-w-[1600px] space-y-6 p-4 sm:space-y-8 sm:p-6 lg:p-8">
       <section
         id="overview-dashboard"
-        class="scroll-mt-28 flex flex-col md:flex-row md:items-end justify-between gap-4"
+        class="scroll-mt-28 flex flex-col justify-between gap-4 xl:flex-row xl:items-end"
       >
         <div>
           <h2 class="mb-2 text-2xl font-extrabold font-headline tracking-tight text-on-surface sm:text-4xl">
             系统概览 <span class="text-primary">.</span>
           </h2>
-          <p class="text-on-surface-variant font-medium leading-relaxed">
+          <p class="max-w-3xl text-on-surface-variant font-medium leading-relaxed">
             欢迎回来，{{ greetingName }}。以下是基于您账户真实数据的智能使用快照（近 30 天对比上一周期）。
           </p>
+          <div class="mt-3 flex flex-wrap items-center gap-2">
+            <span class="nb-pill nb-pill-primary rounded-full px-3 py-1 text-[10px] uppercase tracking-wide"
+              >Overview</span
+            >
+            <span class="nb-pill rounded-full bg-white px-3 py-1 text-[10px] text-on-surface-variant"
+              >{{ lastUpdatedLabel }}</span
+            >
+          </div>
         </div>
         <div class="flex gap-2 flex-wrap">
           <div
@@ -318,43 +353,68 @@ watch(trendWindow, () => {
       </section>
 
       <!-- 摘要条 -->
-      <section
-        class="grid grid-cols-2 md:grid-cols-4 gap-4"
-        aria-label="账户摘要"
-      >
-        <div
-          class="nb-card rounded-2xl p-4"
-        >
-          <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">会话总数</p>
+      <section class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4" aria-label="账户摘要">
+        <template v-if="loading">
+          <div
+            v-for="n in summarySkeleton"
+            :key="`summary-skeleton-${n}`"
+            class="nb-card rounded-2xl p-4 space-y-3"
+            aria-hidden="true"
+          >
+            <div class="h-3 w-20 rounded" :class="pulseClass()" />
+            <div class="h-8 w-24 rounded" :class="pulseClass()" />
+            <div class="h-3 w-28 rounded" :class="pulseClass()" />
+          </div>
+        </template>
+        <template v-else>
+          <div
+            class="nb-card rounded-2xl p-4 transition-transform hover:-translate-y-0.5"
+          >
+          <div class="mb-3 flex items-center justify-between">
+            <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">会话总数</p>
+            <span class="material-symbols-outlined text-primary text-lg">forum</span>
+          </div>
           <p class="text-2xl font-black font-headline mt-1">{{ summary.chatSessions.toLocaleString() }}</p>
-        </div>
-        <div
-          class="nb-card rounded-2xl p-4"
-        >
-          <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">知识文档</p>
+          <p class="mt-1 text-[11px] text-on-surface-variant">近 30 天累计会话线程</p>
+          </div>
+          <div
+            class="nb-card rounded-2xl p-4 transition-transform hover:-translate-y-0.5"
+          >
+          <div class="mb-3 flex items-center justify-between">
+            <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">知识文档</p>
+            <span class="material-symbols-outlined text-secondary text-lg">description</span>
+          </div>
           <p class="text-2xl font-black font-headline mt-1">{{ summary.documents.toLocaleString() }}</p>
-        </div>
-        <div
-          class="nb-card rounded-2xl p-4"
-        >
-          <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">向量块</p>
+          <p class="mt-1 text-[11px] text-on-surface-variant">可检索文档资产</p>
+          </div>
+          <div
+            class="nb-card rounded-2xl p-4 transition-transform hover:-translate-y-0.5"
+          >
+          <div class="mb-3 flex items-center justify-between">
+            <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">向量块</p>
+            <span class="material-symbols-outlined text-tertiary-dim text-lg">dataset</span>
+          </div>
           <p class="text-2xl font-black font-headline mt-1">{{ summary.chunks.toLocaleString() }}</p>
-        </div>
-        <div
-          class="nb-card rounded-2xl p-4"
-        >
-          <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">近 30 天消息</p>
-          <p class="text-2xl font-black font-headline mt-1">
-            {{ (summary.userMessagesLast30d + summary.assistantMessagesLast30d).toLocaleString() }}
-          </p>
+          <p class="mt-1 text-[11px] text-on-surface-variant">RAG 检索索引规模</p>
+          </div>
+          <div
+            class="nb-card rounded-2xl p-4 transition-transform hover:-translate-y-0.5"
+          >
+          <div class="mb-3 flex items-center justify-between">
+            <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">近 30 天消息</p>
+            <span class="material-symbols-outlined text-on-surface text-lg">stacked_line_chart</span>
+          </div>
+          <p class="text-2xl font-black font-headline mt-1">{{ totalMessages.toLocaleString() }}</p>
           <p class="text-[10px] text-on-surface-variant/70 mt-1">
             用户 {{ summary.userMessagesLast30d }} · 助手 {{ summary.assistantMessagesLast30d }}
           </p>
-        </div>
+          <p class="mt-1 text-[11px] text-on-surface-variant">应答比 {{ assistantReplyRate.toFixed(1) }}%</p>
+          </div>
+        </template>
       </section>
 
       <div class="grid grid-cols-12 gap-6">
-        <div class="col-span-12 lg:col-span-8 grid grid-cols-3 gap-4 relative">
+        <div class="col-span-12 lg:col-span-8 grid grid-cols-1 md:grid-cols-3 gap-4 relative">
           <div
             v-if="loading"
             class="absolute inset-0 z-10 bg-background/40 backdrop-blur-[2px] rounded-3xl flex items-center justify-center"
@@ -367,9 +427,23 @@ watch(trendWindow, () => {
               加载指标…
             </div>
           </div>
-          <div
-            class="nb-card bg-white p-6 rounded-2xl group hover:-translate-y-1 transition-transform"
-          >
+          <template v-if="loading">
+            <div
+              v-for="n in metricsSkeleton"
+              :key="`metrics-skeleton-${n}`"
+              class="nb-card bg-white rounded-2xl p-6 space-y-3"
+              aria-hidden="true"
+            >
+              <div class="h-9 w-9 rounded-lg" :class="pulseClass()" />
+              <div class="h-3 w-24 rounded" :class="pulseClass()" />
+              <div class="h-8 w-28 rounded" :class="pulseClass()" />
+              <div class="h-3 w-20 rounded" :class="pulseClass()" />
+            </div>
+          </template>
+          <template v-else>
+            <div
+              class="nb-card bg-white p-6 rounded-2xl group hover:-translate-y-1 transition-transform"
+            >
             <div class="flex justify-between items-start mb-4">
               <div class="p-2 bg-primary/10 rounded-lg text-primary">
                 <span class="material-symbols-outlined">toll</span>
@@ -387,10 +461,11 @@ watch(trendWindow, () => {
             <h3 class="text-2xl font-black font-headline tracking-tighter">
               {{ metrics.tokenUsage.toLocaleString() }}
             </h3>
-          </div>
-          <div
-            class="nb-card bg-white p-6 rounded-2xl group hover:-translate-y-1 transition-transform"
-          >
+            <p class="mt-2 text-[11px] text-on-surface-variant">约 {{ compactNum(metrics.tokenUsage) }} tokens</p>
+            </div>
+            <div
+              class="nb-card bg-white p-6 rounded-2xl group hover:-translate-y-1 transition-transform"
+            >
             <div class="flex justify-between items-start mb-4">
               <div class="p-2 bg-secondary-container/30 rounded-lg text-secondary">
                 <span class="material-symbols-outlined">chat</span>
@@ -407,10 +482,11 @@ watch(trendWindow, () => {
             <h3 class="text-2xl font-black font-headline tracking-tighter">
               {{ formatApiRequests(metrics.apiRequests) }}
             </h3>
-          </div>
-          <div
-            class="nb-card bg-white p-6 rounded-2xl group hover:-translate-y-1 transition-transform"
-          >
+            <p class="mt-2 text-[11px] text-on-surface-variant">真实用户消息请求量</p>
+            </div>
+            <div
+              class="nb-card bg-white p-6 rounded-2xl group hover:-translate-y-1 transition-transform"
+            >
             <div class="flex justify-between items-start mb-4">
               <div class="p-2 bg-tertiary-container/30 rounded-lg text-tertiary">
                 <span class="material-symbols-outlined">speed</span>
@@ -435,9 +511,11 @@ watch(trendWindow, () => {
               {{ formatLatency(metrics.avgLatencyMs)
               }}<span v-if="metrics.avgLatencyMs != null" class="text-sm font-medium ml-1">ms</span>
             </h3>
-          </div>
+            <p class="mt-2 text-[11px] text-on-surface-variant">数值越低通常代表更流畅</p>
+            </div>
+          </template>
           <div
-            class="nb-card-lg col-span-3 p-8 rounded-3xl min-h-[320px] relative overflow-hidden"
+            class="nb-card-lg md:col-span-3 p-8 rounded-3xl min-h-[320px] relative overflow-hidden"
           >
             <div class="flex justify-between items-center mb-8 flex-wrap gap-3">
               <div>
@@ -490,20 +568,40 @@ watch(trendWindow, () => {
               </div>
             </div>
             <p v-else class="text-sm text-on-surface-variant py-12 text-center">暂无趋势数据</p>
+            <div v-if="trendPeakIdx >= 0 && trendBars[trendPeakIdx]" class="mt-4">
+              <span class="nb-pill rounded-full bg-white px-3 py-1 text-[11px] text-on-surface">
+                峰值：{{ trendBars[trendPeakIdx].label }} · {{ trendBars[trendPeakIdx].count }} 条
+              </span>
+            </div>
             <div
               class="absolute inset-0 bg-gradient-to-t from-white/10 to-transparent pointer-events-none"
             />
           </div>
         </div>
-        <div
-          class="nb-card col-span-12 lg:col-span-4 rounded-3xl p-6 flex flex-col min-h-[320px]"
-        >
+        <div class="nb-card col-span-12 lg:col-span-4 rounded-3xl p-6 flex flex-col min-h-[320px]">
           <div class="flex items-center justify-between mb-6 px-2">
             <h4 class="text-lg font-bold font-headline">最近动态</h4>
             <span class="material-symbols-outlined text-primary text-xl" aria-hidden="true">sensors</span>
           </div>
           <div class="flex-1 overflow-y-auto no-scrollbar space-y-4 max-h-[480px]">
-            <template v-if="filteredActivity.length">
+            <template v-if="loading">
+              <div
+                v-for="n in activitySkeleton"
+                :key="`activity-skeleton-${n}`"
+                class="nb-card w-full rounded-2xl p-4"
+                aria-hidden="true"
+              >
+                <div class="flex items-start gap-3">
+                  <div class="h-2 w-2 mt-2 rounded-full" :class="pulseClass()" />
+                  <div class="flex-1 space-y-2">
+                    <div class="h-3 w-3/5 rounded" :class="pulseClass()" />
+                    <div class="h-3 w-11/12 rounded" :class="pulseClass()" />
+                    <div class="h-3 w-2/5 rounded" :class="pulseClass()" />
+                  </div>
+                </div>
+              </div>
+            </template>
+            <template v-else-if="filteredActivity.length">
               <button
                 v-for="item in filteredActivity"
                 :key="item.id"
@@ -515,7 +613,7 @@ watch(trendWindow, () => {
                   class="w-1.5 h-1.5 rounded-full mt-2 flex-shrink-0"
                   :class="activityDotClass(item.role)"
                 />
-                <div class="min-w-0">
+                <div class="min-w-0 flex-1">
                   <div class="flex flex-wrap items-center gap-2 gap-y-1">
                     <p class="text-sm font-bold truncate">{{ item.sessionTitle }}</p>
                     <span
@@ -528,6 +626,7 @@ watch(trendWindow, () => {
                     {{ timeAgoLabel(item.occurredAt) }}
                   </span>
                 </div>
+                <span class="material-symbols-outlined self-center text-on-surface-variant/70">chevron_right</span>
               </button>
             </template>
             <p v-else class="text-sm text-on-surface-variant text-center py-10 px-4">
@@ -554,66 +653,81 @@ watch(trendWindow, () => {
             <RouterLink to="/market" class="text-primary text-sm font-bold hover:underline">查看市场</RouterLink>
           </div>
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <template v-for="agent in filteredAgents" :key="agent.id">
-              <RouterLink
-                v-if="agent.type === 'card'"
-                :to="agent.linkTo || '/chat'"
-                class="nb-card bg-white rounded-3xl p-6 flex flex-col gap-4 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
+            <template v-if="loading">
+              <div
+                v-for="n in agentsSkeleton"
+                :key="`agents-skeleton-${n}`"
+                class="nb-card rounded-3xl p-6 space-y-3"
+                aria-hidden="true"
               >
-                <div class="flex justify-between items-start">
-                  <div
-                    class="w-14 h-14 rounded-2xl flex items-center justify-center"
-                    :class="agent.iconBgClass"
-                  >
-                    <span
-                      class="material-symbols-outlined text-3xl"
-                      :class="agent.iconTextClass"
-                      >{{ agent.icon }}</span
-                    >
-                  </div>
-                  <div
-                    class="px-3 py-1 rounded-full text-[10px] font-bold flex items-center gap-1"
-                    :class="agent.statusPillClass"
-                  >
-                    <span class="w-1.5 h-1.5 rounded-full" :class="agent.statusDotClass" />
-                    {{ agent.status }}
-                  </div>
-                </div>
-                <div>
-                  <h5 class="text-lg font-bold font-headline mb-1">{{ agent.name }}</h5>
-                  <p class="text-xs text-on-surface-variant leading-relaxed">{{ agent.description }}</p>
-                  <div v-if="agent.tags?.length" class="flex flex-wrap gap-1.5 mt-3">
-                    <span
-                      v-for="tag in agent.tags.slice(0, 3)"
-                      :key="tag"
-                      class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant"
-                      >{{ tag }}</span
-                    >
-                  </div>
-                </div>
-                <div class="pt-4 border-t border-surface-container flex justify-between items-center">
-                  <span class="text-[10px] font-bold text-primary">去对话</span>
-                  <span class="material-symbols-outlined text-sm text-on-surface-variant">chevron_right</span>
-                </div>
-              </RouterLink>
-              <RouterLink
-                v-else
-                :to="agent.linkTo || '/market'"
-                class="group flex min-h-[200px] flex-col items-center justify-center gap-3 rounded-3xl border-2 border-black bg-white p-6 shadow-[6px_6px_0_#141414] outline-none transition-[transform,box-shadow,background-color,color] duration-150 ease-out hover:-translate-x-px hover:-translate-y-px hover:bg-primary/[0.08] hover:shadow-[8px_8px_0_#141414] focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 active:translate-x-px active:translate-y-px active:shadow-[4px_4px_0_#141414]"
-              >
-                <div
-                  class="flex h-12 w-12 items-center justify-center rounded-full border-2 border-black bg-[#f5f1ea] text-on-surface transition-colors duration-150 group-hover:bg-primary group-hover:text-on-primary"
+                <div class="h-12 w-12 rounded-2xl" :class="pulseClass()" />
+                <div class="h-4 w-3/4 rounded" :class="pulseClass()" />
+                <div class="h-3 w-full rounded" :class="pulseClass()" />
+                <div class="h-3 w-4/5 rounded" :class="pulseClass()" />
+              </div>
+            </template>
+            <template v-else>
+              <template v-for="agent in filteredAgents" :key="agent.id">
+                <RouterLink
+                  v-if="agent.type === 'card'"
+                  :to="agent.linkTo || '/chat'"
+                  class="nb-card bg-white rounded-3xl p-6 flex flex-col gap-4 transition-[transform,background-color] hover:-translate-y-1 outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
                 >
-                  <span class="material-symbols-outlined">add</span>
-                </div>
-                <span
-                  class="text-center text-sm font-bold text-on-surface-variant transition-colors duration-150 group-hover:text-primary"
-                  >{{ agent.name }}</span
+                  <div class="flex justify-between items-start">
+                    <div
+                      class="w-14 h-14 rounded-2xl flex items-center justify-center"
+                      :class="agent.iconBgClass"
+                    >
+                      <span
+                        class="material-symbols-outlined text-3xl"
+                        :class="agent.iconTextClass"
+                        >{{ agent.icon }}</span
+                      >
+                    </div>
+                    <div
+                      class="px-3 py-1 rounded-full text-[10px] font-bold flex items-center gap-1"
+                      :class="agent.statusPillClass"
+                    >
+                      <span class="w-1.5 h-1.5 rounded-full" :class="agent.statusDotClass" />
+                      {{ agent.status }}
+                    </div>
+                  </div>
+                  <div>
+                    <h5 class="text-lg font-bold font-headline mb-1">{{ agent.name }}</h5>
+                    <p class="text-xs text-on-surface-variant leading-relaxed">{{ agent.description }}</p>
+                    <div v-if="agent.tags?.length" class="flex flex-wrap gap-1.5 mt-3">
+                      <span
+                        v-for="tag in agent.tags.slice(0, 3)"
+                        :key="tag"
+                        class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant"
+                        >{{ tag }}</span
+                      >
+                    </div>
+                  </div>
+                  <div class="pt-4 border-t border-surface-container flex justify-between items-center">
+                    <span class="text-[10px] font-bold text-primary">去对话</span>
+                    <span class="material-symbols-outlined text-sm text-on-surface-variant">chevron_right</span>
+                  </div>
+                </RouterLink>
+                <RouterLink
+                  v-else
+                  :to="agent.linkTo || '/market'"
+                  class="group flex min-h-[200px] flex-col items-center justify-center gap-3 rounded-3xl border-2 border-black bg-white p-6 shadow-[6px_6px_0_#141414] outline-none transition-[transform,box-shadow,background-color,color] duration-150 ease-out hover:-translate-x-px hover:-translate-y-px hover:bg-primary/[0.08] hover:shadow-[8px_8px_0_#141414] focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 active:translate-x-px active:translate-y-px active:shadow-[4px_4px_0_#141414]"
                 >
-                <span class="text-[10px] text-on-surface-variant/70 text-center px-2">{{
-                  agent.description
-                }}</span>
-              </RouterLink>
+                  <div
+                    class="flex h-12 w-12 items-center justify-center rounded-full border-2 border-black bg-[#f5f1ea] text-on-surface transition-colors duration-150 group-hover:bg-primary group-hover:text-on-primary"
+                  >
+                    <span class="material-symbols-outlined">add</span>
+                  </div>
+                  <span
+                    class="text-center text-sm font-bold text-on-surface-variant transition-colors duration-150 group-hover:text-primary"
+                    >{{ agent.name }}</span
+                  >
+                  <span class="text-[10px] text-on-surface-variant/70 text-center px-2">{{
+                    agent.description
+                  }}</span>
+                </RouterLink>
+              </template>
             </template>
           </div>
           <p
@@ -627,7 +741,7 @@ watch(trendWindow, () => {
     </div>
     <RouterLink
       to="/chat"
-      class="fixed bottom-8 right-8 w-16 h-16 bg-primary text-on-primary rounded-full shadow-2xl shadow-primary/40 flex items-center justify-center active:scale-90 transition-transform z-50"
+      class="fixed bottom-8 right-8 w-16 h-16 bg-primary text-on-primary rounded-full shadow-2xl shadow-primary/40 flex items-center justify-center active:scale-90 transition-transform z-50 lg:hidden"
       aria-label="打开智能对话"
     >
       <span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1"

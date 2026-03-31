@@ -17,9 +17,9 @@ export class AuthService implements OnModuleInit {
   ) {}
 
   async onModuleInit() {
-    // Seed a dev user for local development.
-    // If you don't want this, set SEED_DEV_USER=false.
-    const seed = process.env.SEED_DEV_USER !== 'false'
+    const isProduction = (process.env.NODE_ENV || '').toLowerCase() === 'production'
+    // 默认仅在非生产启用，生产必须显式设置 SEED_DEV_USER=true 才会执行。
+    const seed = isProduction ? process.env.SEED_DEV_USER === 'true' : process.env.SEED_DEV_USER !== 'false'
     if (!seed) return
 
     const email = process.env.DEV_USER_EMAIL || 'dev@example.com'
@@ -37,7 +37,7 @@ export class AuthService implements OnModuleInit {
       [email, passwordHash],
     )
     // eslint-disable-next-line no-console
-    console.log(`[auth] seeded dev user: ${email} / ${password}`)
+    console.log(`[auth] seeded dev user: ${email}`)
   }
 
   async login(email: string, password: string) {

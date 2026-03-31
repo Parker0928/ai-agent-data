@@ -98,11 +98,7 @@ router.beforeEach(async (to, _from, next) => {
   const requiresAuth = Boolean(to.meta.requiresAuth)
 
   if (!isPublic && (requiresAuth || to.path !== '/login')) {
-    if (!isAuthenticated()) {
-      next({ path: '/login', query: { redirect: to.fullPath } })
-      return
-    }
-    const me = await fetchMe()
+    const me = isAuthenticated() ? true : Boolean(await fetchMe())
     if (!me) {
       next({ path: '/login', query: { redirect: to.fullPath } })
       return
@@ -111,9 +107,12 @@ router.beforeEach(async (to, _from, next) => {
     return
   }
 
-  if ((to.path === '/login' || to.path === '/register') && isAuthenticated()) {
-    next('/overview')
-    return
+  if (to.path === '/login' || to.path === '/register') {
+    const me = isAuthenticated() ? true : Boolean(await fetchMe())
+    if (me) {
+      next('/overview')
+      return
+    }
   }
 
   next()

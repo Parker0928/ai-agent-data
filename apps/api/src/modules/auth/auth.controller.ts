@@ -1,7 +1,10 @@
 import { Body, Controller, Get, Post, Req, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common'
+import type { Response } from 'express'
+import { Res } from '@nestjs/common'
 import { IsEmail, IsString, MaxLength, MinLength } from 'class-validator'
 import { AuthService } from './auth.service'
 import { JwtAuthGuard } from './jwt-auth.guard'
+import { buildAuthCookieClearOptions, buildAuthCookieOptions } from './auth-config'
 
 export class LoginDto {
   @IsEmail({}, { message: '邮箱格式不正确' })
@@ -20,16 +23,24 @@ export class AuthController {
 
   @Post('login')
   @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
-  async login(@Body() body: LoginDto) {
+  async login(@Body() body: LoginDto, @Res({ passthrough: true }) res: Response) {
     const { token, user } = await this.authService.login(body.email, body.password)
-    return { token, user }
+    res.cookie('auth_token', token, buildAuthCookieOptions())
+    return { user }
   }
 
   @Post('register')
   @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
-  async register(@Body() body: LoginDto) {
+  async register(@Body() body: LoginDto, @Res({ passthrough: true }) res: Response) {
     const { token, user } = await this.authService.register(body.email, body.password)
-    return { token, user }
+    res.cookie('auth_token', token, buildAuthCookieOptions())
+    return { user }
+  }
+
+  @Post('logout')
+  async logout(@Res({ passthrough: true }) res: Response) {
+    res.clearCookie('auth_token', buildAuthCookieClearOptions())
+    return { ok: true }
   }
 
   @Get('me')

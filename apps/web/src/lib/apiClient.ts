@@ -88,33 +88,8 @@ function getApiBaseUrlCandidates() {
   return Array.from(new Set(withLocalMirror.filter((c) => c === '' || c.length > 0)))
 }
 
-async function tryDevLogin(baseUrl: string): Promise<string | null> {
-  const email = import.meta.env.VITE_DEV_EMAIL as string | undefined
-  const password = import.meta.env.VITE_DEV_PASSWORD as string | undefined
-  if (!email || !password) return null
-
-  const resp = await fetch(`${baseUrl}${withApiPrefix('/auth/login')}`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ email, password }),
-  })
-
-  if (!resp.ok) return null
-  let data: { token?: string }
-  try {
-    data = JSON.parse(await resp.text()) as { token?: string }
-  } catch {
-    return null
-  }
-  if (!data?.token) return null
-  localStorage.setItem('jwt_token', data.token)
-  return data.token
-}
-
 function getToken() {
-  return localStorage.getItem('jwt_token')
+  return null
 }
 
 /** 避免 res.json() 在网关返回 HTML 时抛 SyntaxError，导致整页 Vue 报错 */
@@ -142,8 +117,6 @@ export async function apiFetch<T>(
 ): Promise<ApiResponse<T>> {
   const token = getToken()
   const baseUrls = getApiBaseUrlCandidates()
-  let retriedAfter401 = false
-
   const headers: Record<string, string> = {
     ...(options.headers as Record<string, string> | undefined),
   }
@@ -164,40 +137,8 @@ export async function apiFetch<T>(
         ...options,
         headers,
         body: options.json !== undefined ? JSON.stringify(options.json) : options.body,
+        credentials: 'include',
       })
-
-      // If token exists but server says Unauthorized, try to re-login once.
-      if (res.status === 401 && token && !retriedAfter401) {
-        retriedAfter401 = true
-        localStorage.removeItem('jwt_token')
-        try {
-          const newToken = await tryDevLogin(baseUrl)
-          if (newToken) {
-            headers.Authorization = `Bearer ${newToken}`
-            const res2 = await fetch(url, {
-              ...options,
-              headers,
-              body: options.json !== undefined ? JSON.stringify(options.json) : options.body,
-            })
-            if (!res2.ok) {
-              const text = await res2.text().catch(() => '')
-              const err = new Error(text || `Request failed: ${res2.status}`)
-              lastErr = err
-              if (shouldRetryNextApiBase(err, { baseUrl, status: res2.status })) continue
-              throw err
-            }
-            try {
-              return await readResponseJson<T>(res2)
-            } catch (e) {
-              lastErr = e
-              if (shouldRetryNextApiBase(e)) continue
-              throw e
-            }
-          }
-        } catch {
-          // fallthrough to original error
-        }
-      }
 
       if (!res.ok) {
         const text = await res.text().catch(() => '')
@@ -238,6 +179,7 @@ export async function apiFormPost<T = unknown>(path: string, formData: FormData)
         method: 'POST',
         headers: token ? { Authorization: `Bearer ${token}` } : {},
         body: formData,
+        credentials: 'include',
       })
 
       const text = await res.text().catch(() => '')
@@ -288,6 +230,7 @@ export async function apiFetchStreamSSE(
         },
         body: JSON.stringify(body),
         signal: options?.signal,
+        credentials: 'include',
       })
 
       if (!res.ok) {

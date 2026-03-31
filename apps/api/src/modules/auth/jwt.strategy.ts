@@ -4,6 +4,7 @@ import { PassportStrategy } from '@nestjs/passport'
 import { ExtractJwt, Strategy } from 'passport-jwt'
 
 import { DatabaseService } from '../database/database.service'
+import { getJwtSecret } from './auth-config'
 
 type JwtPayload = {
   sub: string
@@ -16,9 +17,12 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     private readonly db: DatabaseService,
   ) {
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      jwtFromRequest: ExtractJwt.fromExtractors([
+        ExtractJwt.fromAuthHeaderAsBearerToken(),
+        (req: any) => req?.cookies?.auth_token ?? null,
+      ]),
       ignoreExpiration: false,
-      secretOrKey: config.get<string>('JWT_SECRET') || 'dev-secret',
+      secretOrKey: getJwtSecret(config),
     })
   }
 

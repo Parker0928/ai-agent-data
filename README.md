@@ -96,11 +96,12 @@ npm run test
 
 ## 认证接口（Auth）
 
-后端已支持登录与注册（返回 JWT，前端会自动持久化）：
+后端已支持登录与注册（使用 **HttpOnly Cookie** 承载 JWT）：
 
 - `POST /api/auth/login`
 - `POST /api/auth/register`
-- `GET /api/auth/me`（需 `Authorization: Bearer <token>`）
+- `POST /api/auth/logout`
+- `GET /api/auth/me`（需已登录 Cookie）
 
 注册规则：
 
@@ -112,6 +113,14 @@ npm run test
 
 - `POST /auth/login`
 - `POST /auth/register`
+- `POST /auth/logout`
+
+安全相关环境变量（后端）：
+
+- `JWT_SECRET`：**必填**。未配置将拒绝启动（除非本地临时设置 `ALLOW_INSECURE_DEV_JWT=true`）
+- `CORS_ORIGINS`：逗号分隔白名单，例如 `http://localhost:8080,http://localhost:5173`
+- `DB_AUTO_MIGRATE`：生产默认关闭；设置 `true` 才会自动执行迁移
+- `SEED_DEV_USER`：生产默认关闭；设置 `true` 才会 seed 测试账号
 
 环境文件：
 - `apps/web/.env.development | .env.staging | .env.production`

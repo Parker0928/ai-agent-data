@@ -11,13 +11,13 @@ export type HistoryListFilter = {
   limit?: number
 }
 
-function normalizeScope(raw?: string): 'active' | 'archived' | 'all' {
+export function normalizeScope(raw?: string): 'active' | 'archived' | 'all' {
   const s = (raw || 'active').toLowerCase()
   if (s === 'archived' || s === 'all') return s
   return 'active'
 }
 
-function parseUuidList(ids: unknown, max = 50): string[] {
+export function parseUuidList(ids: unknown, max = 50): string[] {
   if (!Array.isArray(ids)) throw new BadRequestException('ids 须为非空数组')
   const list = ids.map((x) => String(x).trim()).filter(Boolean)
   if (list.length === 0) throw new BadRequestException('请至少选择一个会话')

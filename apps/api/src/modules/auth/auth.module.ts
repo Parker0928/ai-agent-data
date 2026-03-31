@@ -7,6 +7,7 @@ import { AuthController } from './auth.controller'
 import { AuthLegacyExpressHook } from './auth-legacy-express.hook'
 import { AuthService } from './auth.service'
 import { JwtStrategy } from './jwt.strategy'
+import { getJwtExpiresIn, getJwtSecret } from './auth-config'
 import { DatabaseModule } from '../database/database.module'
 
 @Module({
@@ -17,10 +18,9 @@ import { DatabaseModule } from '../database/database.module'
     JwtModule.registerAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
-        secret: config.get<string>('JWT_SECRET') || 'dev-secret',
+        secret: getJwtSecret(config),
         signOptions: {
-          // jwt signOptions.expiresIn expects number or a specific string literal format.
-          expiresIn: (config.get<string>('JWT_EXPIRES_IN') || '7d') as any,
+          expiresIn: getJwtExpiresIn(config) as any,
         },
       }),
     }),

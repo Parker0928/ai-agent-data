@@ -85,7 +85,7 @@ function buildContext(docs: Array<{ content: string; metadata: any }>) {
 
 const DEFAULT_SESSION_TITLES = ['新会话', '智能对话会话', 'New Session']
 
-function mapChatModelForProvider(requestedModel?: string) {
+export function mapChatModelForProvider(requestedModel?: string) {
   // Frontend exposes: gpt-4o / gpt-4o-mini.
   // When using OpenAI official gateway, pass through model names directly.
   // When using MiniMax OpenAI-compatible gateway, map to MiniMax model ids.

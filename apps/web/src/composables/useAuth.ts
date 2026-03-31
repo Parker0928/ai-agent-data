@@ -2,7 +2,6 @@ import { ref } from 'vue'
 import { apiFetch } from '../lib/apiClient'
 
 type LoginResp = {
-  token: string
   user: { id: string; email: string }
 }
 
@@ -12,7 +11,7 @@ const error = ref<string | null>(null)
 const user = ref<{ id: string; email: string } | null>(null)
 
 function getToken() {
-  return localStorage.getItem('jwt_token')
+  return user.value?.id || null
 }
 
 function humanizeLoginError(raw: string): string {
@@ -56,11 +55,9 @@ export function useAuth() {
         method: 'POST',
         json: { email, password },
       })
-      localStorage.setItem('jwt_token', resp.token)
       user.value = resp.user
-      return resp.token
+      return resp.user.id
     } catch (e: any) {
-      localStorage.removeItem('jwt_token')
       error.value = humanizeLoginError(e?.message || 'Login failed')
       return null
     } finally {
@@ -76,11 +73,9 @@ export function useAuth() {
         method: 'POST',
         json: { email, password },
       })
-      localStorage.setItem('jwt_token', resp.token)
       user.value = resp.user
-      return resp.token
+      return resp.user.id
     } catch (e: any) {
-      localStorage.removeItem('jwt_token')
       error.value = humanizeRegisterError(e?.message || 'Register failed')
       return null
     } finally {
@@ -89,8 +84,7 @@ export function useAuth() {
   }
 
   async function loginIfNeeded(): Promise<string | null> {
-    const existing = getToken()
-    if (existing) return existing
+    if (user.value?.id) return user.value.id
 
     const email = import.meta.env.VITE_DEV_EMAIL as string | undefined
     const password = import.meta.env.VITE_DEV_PASSWORD as string | undefined
@@ -103,24 +97,22 @@ export function useAuth() {
   }
 
   async function fetchMe() {
-    const existing = getToken()
-    if (!existing) {
-      user.value = null
-      return null
-    }
     try {
       const resp = await apiFetch<{ user: { id: string; email: string } }>('/auth/me', { method: 'GET' })
       user.value = resp.user
       return resp.user
     } catch {
-      localStorage.removeItem('jwt_token')
       user.value = null
       return null
     }
   }
 
-  function logout() {
-    localStorage.removeItem('jwt_token')
+  async function logout() {
+    try {
+      await apiFetch('/auth/logout', { method: 'POST' })
+    } catch {
+      // noop: local state still needs clear
+    }
     user.value = null
   }
 

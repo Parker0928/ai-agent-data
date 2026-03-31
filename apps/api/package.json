@@ -7,8 +7,8 @@
     "dev": "tsc -p tsconfig.build.json && concurrently -k \"tsc -p tsconfig.build.json --watch --preserveWatchOutput\" \"node --watch dist/main.js\" --names tsc,api",
     "start": "node dist/main.js",
     "build": "tsc -p tsconfig.build.json",
-    "lint": "echo \"Skip lint for now\"",
-    "test": "tsx --test"
+    "lint": "tsc -p tsconfig.json --noEmit",
+    "test": "tsx --test src/modules/auth/auth.service.test.ts src/modules/chat/chat.service.test.ts src/modules/history/history.service.test.ts src/modules/knowledge/knowledge.service.test.ts"
   },
   "dependencies": {
     "@langchain/community": "^1.1.24",

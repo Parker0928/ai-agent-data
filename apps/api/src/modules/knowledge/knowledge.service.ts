@@ -24,13 +24,13 @@ function guessSourceType({ file, url }: { file?: Express.Multer.File; url?: stri
   throw new BadRequestException('Missing file or url')
 }
 
-function normalizeChunkStrategy(raw?: string): ChunkStrategy {
+export function normalizeChunkStrategy(raw?: string): ChunkStrategy {
   const s = (raw || 'semantic').toLowerCase()
   if (CHUNK_STRATEGIES.includes(s as ChunkStrategy)) return s as ChunkStrategy
   return 'semantic'
 }
 
-function chunkText(text: string, chunkSize: number, chunkOverlap: number) {
+export function chunkText(text: string, chunkSize: number, chunkOverlap: number) {
   const cleaned = text.replace(/\r\n/g, '\n').replace(/\s+\n/g, '\n').trim()
   if (!cleaned) return []
 

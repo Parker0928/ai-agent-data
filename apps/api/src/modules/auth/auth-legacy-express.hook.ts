@@ -10,6 +10,7 @@ import { HttpAdapterHost } from '@nestjs/core'
 import type { Express, NextFunction, Request, Response } from 'express'
 
 import { AuthService } from './auth.service'
+import { buildAuthCookieClearOptions, buildAuthCookieOptions } from './auth-config'
 
 /**
  * 在 Nest 注册 404 处理之前挂上 POST /auth/login（无 /api 前缀），
@@ -51,7 +52,8 @@ export class AuthLegacyExpressHook implements OnModuleInit {
         const email = (req.body as { email?: string })?.email
         const password = (req.body as { password?: string })?.password
         const { token, user } = await this.auth.login(String(email || ''), String(password || ''))
-        res.json({ token, user })
+        res.cookie('auth_token', token, buildAuthCookieOptions())
+        res.json({ user })
       } catch (e) {
         sendAuthError(e, res, next)
       }
@@ -62,10 +64,16 @@ export class AuthLegacyExpressHook implements OnModuleInit {
         const email = (req.body as { email?: string })?.email
         const password = (req.body as { password?: string })?.password
         const { token, user } = await this.auth.register(String(email || ''), String(password || ''))
-        res.json({ token, user })
+        res.cookie('auth_token', token, buildAuthCookieOptions())
+        res.json({ user })
       } catch (e) {
         sendAuthError(e, res, next)
       }
+    })
+
+    http.post('/auth/logout', async (_req: Request, res: Response) => {
+      res.clearCookie('auth_token', buildAuthCookieClearOptions())
+      res.json({ ok: true })
     })
   }
 }
