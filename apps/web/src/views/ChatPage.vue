@@ -85,6 +85,14 @@ const speech = useWebSpeechRecognition()
 const MAX_ATTACHMENTS = 8
 const MAX_ATTACH_IMAGES = 6
 const MAX_ATTACH_FILES = 4
+/** 与 apps/api 侧 prepareChatAttachments 总上限一致（约 16MB 解码后） */
+const MAX_ATTACHMENTS_DECODED_BYTES = 16 * 1024 * 1024
+
+function approxDecodedBytesFromBase64(b64: string): number {
+  const clean = (b64 || '').replace(/\s/g, '')
+  if (!clean) return 0
+  return Math.floor((clean.length * 3) / 4)
+}
 const threadViewportRef = ref<HTMLDivElement | null>(null)
 /** 随消息变高，ResizeObserver 只观察此层（视口本身高度不变时也会触发） */
 const threadContentRef = ref<HTMLDivElement | null>(null)
@@ -715,16 +723,31 @@ async function sendMessageWithContent(
   const attachments = streamOpts?.attachments ?? []
   const trimmed = content.trim()
   if (!trimmed && attachments.length === 0) return
-  if (!currentSessionId.value) throw new Error('Session not ready')
+  if (!currentSessionId.value) {
+    try {
+      await ensureSession()
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : String(e)
+      pageError.value = msg || '会话初始化失败，请刷新后重试'
+      return
+    }
+  }
+  if (!currentSessionId.value) {
+    pageError.value = '会话未就绪，请稍后重试或刷新页面'
+    return
+  }
 
   const maxLen = chatConfig.value?.maxMessageChars ?? 24000
-  const approxExtra = attachments.reduce((n, a) => n + (a.base64?.length || 0), 0)
+  const approxAttachBytes = attachments.reduce(
+    (n, a) => n + approxDecodedBytesFromBase64(a.base64 || ''),
+    0,
+  )
   if (trimmed.length > maxLen) {
     pageError.value = `消息过长：最多 ${maxLen} 字符（当前 ${trimmed.length}）`
     return
   }
-  if (approxExtra > maxLen * 4) {
-    pageError.value = '附件总体积过大，请减少图片数量或缩小文件后重试'
+  if (approxAttachBytes > MAX_ATTACHMENTS_DECODED_BYTES) {
+    pageError.value = '附件总体积过大（单会话附件解码后约 16MB 上限），请减少图片数量或缩小文件后重试'
     return
   }
 

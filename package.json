@@ -20,9 +20,13 @@
     "docker:dev": "docker compose --profile dev up --build",
     "docker:dev:up": "bash scripts/dev-docker.sh",
     "docker:dev:down": "docker compose --profile dev down",
-    "docker:dev:logs": "docker compose --profile dev logs -f web-dev api"
+    "docker:dev:logs": "docker compose --profile dev logs -f web-dev api",
+    "pw:test": "playwright test",
+    "pw:test:headed": "playwright test --headed",
+    "pw:test:ui": "playwright test --ui"
   },
   "devDependencies": {
+    "@playwright/test": "^1.54.2",
     "turbo": "^2.5.5"
   },
   "engines": {

@@ -3,8 +3,6 @@ import { PoolClient } from 'pg'
 import { DatabaseService } from '../database/database.service'
 import { OpenAIEmbeddings } from '@langchain/openai'
 
-// pdf-parse 的默认导出在 TS 类型里不总是可调用，因此用 require + any 规避类型问题。
-const pdfParse = require('pdf-parse') as any
 import * as cheerio from 'cheerio'
 import mammoth from 'mammoth'
 import { createWorker } from 'tesseract.js'
@@ -69,14 +67,49 @@ function formatSizeText(byteLength: number | null, textChars: number | null) {
   return '—'
 }
 
+/**
+ * 兼容 pdf-parse v1（`module.exports = fn`）与 v2（`PDFParse` 类 + `getText`），
+ * 避免 monorepo / Docker 仅安装根 `node_modules` 时解析到 v2 导致 `pdfParse is not a function`。
+ */
+async function extractTextFromPdfBuffer(buffer: Buffer): Promise<string> {
+  const mod: any = require('pdf-parse')
+
+  if (typeof mod === 'function') {
+    const data = await mod(buffer)
+    return (data?.text || '').trim()
+  }
+
+  const PDFParse = mod?.PDFParse as
+    | (new (opts: { data: Buffer }) => {
+        getText: () => Promise<{ text?: string }>
+        destroy?: () => Promise<void>
+      })
+    | undefined
+
+  if (typeof PDFParse !== 'function') {
+    throw new BadRequestException('PDF 解析模块加载异常：不支持的 pdf-parse 导出格式')
+  }
+
+  const parser = new PDFParse({ data: buffer })
+  try {
+    const result = await parser.getText()
+    return (result?.text || '').trim()
+  } finally {
+    try {
+      await parser.destroy?.()
+    } catch {
+      /* ignore */
+    }
+  }
+}
+
 async function extractTextFromFile(file: Express.Multer.File) {
   const filename = file.originalname || ''
   const mime = file.mimetype || ''
   const buf = file.buffer
 
   if (mime.includes('pdf') || filename.toLowerCase().endsWith('.pdf')) {
-    const data = await pdfParse(buf)
-    return data.text || ''
+    return extractTextFromPdfBuffer(buf)
   }
 
   if (mime.includes('word') || filename.toLowerCase().endsWith('.docx')) {
@@ -112,8 +145,7 @@ async function extractTextFromUrl(url: string) {
   const buf = Buffer.from(arrayBuffer)
 
   if (contentType.includes('pdf') || url.toLowerCase().endsWith('.pdf')) {
-    const data = await pdfParse(buf)
-    return data.text || ''
+    return extractTextFromPdfBuffer(buf)
   }
 
   const html = buf.toString('utf-8')

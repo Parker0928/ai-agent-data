@@ -172,6 +172,22 @@ export function visibleFromRawAssistant(raw: string, streamEnded = true): string
   return streamEnded ? computeVisibleFinal(raw) : computeVisibleStreaming(raw)
 }
 
+/** MiniMax 流式里 delta.content 常为「累积全文」，需按前缀差分；标准 OpenAI 为增量片段。 */
+export type ChatStreamContentDeltaState = { last: string; minimax: boolean }
+
+export function extractStreamContentDelta(delta: any, st: ChatStreamContentDeltaState): string {
+  const d = delta?.content
+  if (typeof d !== 'string' || !d) return ''
+  if (!st.minimax) return d
+  if (st.last && d.startsWith(st.last)) {
+    const piece = d.slice(st.last.length)
+    st.last = d
+    return piece
+  }
+  st.last = (st.last || '') + d
+  return d
+}
+
 export function createAssistantVisibleStreamFilter() {
   let lastVisible = ''
   return {

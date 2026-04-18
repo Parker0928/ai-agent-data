@@ -8,7 +8,7 @@
     "start": "node dist/main.js",
     "build": "tsc -p tsconfig.build.json",
     "lint": "tsc -p tsconfig.json --noEmit",
-    "test": "tsx --test src/modules/auth/auth.service.test.ts src/modules/chat/chat.service.test.ts src/modules/history/history.service.test.ts src/modules/knowledge/knowledge.service.test.ts"
+    "test": "tsx --test src/modules/auth/auth.service.test.ts src/modules/chat/chat.service.test.ts src/modules/chat/stream-thinking.util.test.ts src/modules/history/history.service.test.ts src/modules/knowledge/knowledge.service.test.ts"
   },
   "dependencies": {
     "@langchain/community": "^1.1.24",

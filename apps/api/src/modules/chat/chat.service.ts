@@ -4,7 +4,10 @@ import OpenAI from 'openai'
 
 import { DatabaseService } from '../database/database.service'
 import { KnowledgeService } from '../knowledge/knowledge.service'
-import { createAssistantVisibleStreamFilter } from './stream-thinking.util'
+import {
+  createAssistantVisibleStreamFilter,
+  extractStreamContentDelta,
+} from './stream-thinking.util'
 
 function vectorLiteral(embedding: number[]) {
   return `[${embedding.join(',')}]`
@@ -15,7 +18,8 @@ function getOpenAIBaseUrl() {
 }
 
 function isMiniMaxGateway(baseUrl: string) {
-  return /minimaxi\.com/i.test(baseUrl)
+  // 官方文档多为 api.minimax.io；仓库默认也常见 api.minimaxi.com
+  return /(?:minimaxi\.com|minimax\.io|minimax\.com)/i.test(baseUrl)
 }
 
 function buildSystemPrompt(hasReferenceMaterial: boolean, hasUserImages: boolean) {
@@ -402,6 +406,76 @@ export class ChatService {
     return { images, fileExtracts }
   }
 
+  /**
+   * MiniMax 的 OpenAI 兼容接口不支持图片输入；在仍使用 MiniMax 做主对话时，
+   * 通过独立的多模态网关先产出文字描述，再交给主模型。
+   *
+   * 配置优先级（任选其一即可启用图片）：
+   * - 推荐：仅设 `OPENAI_VISION_API_KEY`（OpenAI 官方 sk-…），默认走 `https://api.openai.com/v1`。
+   * - 完整：`OPENAI_IMAGE_CAPTION_BASE_URL` + `OPENAI_IMAGE_CAPTION_API_KEY`（或其它兼容 vision 的网关）。
+   */
+  private async captionImagesForMiniMaxBeforeChat(opts: {
+    images: Array<{ name: string; mimeType: string; dataUrl: string }>
+    userHint: string
+    abortSignal: AbortSignal
+  }): Promise<string> {
+    const explicitBase = (process.env.OPENAI_IMAGE_CAPTION_BASE_URL || '').trim()
+    const explicitKey = (process.env.OPENAI_IMAGE_CAPTION_API_KEY || '').trim()
+    const visionOnlyKey = (process.env.OPENAI_VISION_API_KEY || '').trim()
+
+    const apiKey = explicitKey || visionOnlyKey
+    let baseURL = explicitBase
+    if (!baseURL && apiKey) {
+      baseURL = 'https://api.openai.com/v1'
+    }
+
+    if (!baseURL || !apiKey) {
+      throw new BadRequestException(
+        '当前主对话走 MiniMax 兼容网关时，该网关不支持直接传图片。请至少配置其一：① `OPENAI_VISION_API_KEY`（OpenAI 官方密钥，用于看图并生成描述）；或 ② `OPENAI_IMAGE_CAPTION_BASE_URL` + `OPENAI_IMAGE_CAPTION_API_KEY`（任意支持 image_url 的兼容地址）。可选：`OPENAI_IMAGE_CAPTION_MODEL` / `OPENAI_VISION_MODEL`（默认 gpt-4o-mini）。',
+      )
+    }
+    if (isMiniMaxGateway(baseURL)) {
+      throw new BadRequestException(
+        '图片理解所用的 BASE_URL 不能指向 MiniMax；请使用支持图片输入的视觉模型地址（未显式配置时请检查是否误把 OPENAI_IMAGE_CAPTION_BASE_URL 设成了 MiniMax）。',
+      )
+    }
+    const model = (
+      process.env.OPENAI_IMAGE_CAPTION_MODEL ||
+      process.env.OPENAI_VISION_MODEL ||
+      'gpt-4o-mini'
+    ).trim()
+    const client = new OpenAI({ apiKey, baseURL })
+    const userLine =
+      opts.userHint.trim() ||
+      '用户上传了图片但未输入额外文字，请根据图片内容客观描述并提炼要点，便于后续模型作答。'
+    const content: OpenAI.Chat.ChatCompletionContentPart[] = [
+      {
+        type: 'text',
+        text: `${userLine}\n\n请用简体中文、分条描述每张图片中的关键信息（可读文字、数据、图表、界面与场景）。无法辨认处请如实说明。`,
+      },
+      ...opts.images.map((im) => ({
+        type: 'image_url' as const,
+        image_url: { url: im.dataUrl },
+      })),
+    ]
+    const resp = await client.chat.completions.create(
+      {
+        model,
+        messages: [{ role: 'user', content }],
+        temperature: 0.2,
+        max_tokens: 2048,
+      } as any,
+      { signal: opts.abortSignal },
+    )
+    const text = (resp.choices[0]?.message?.content || '').trim()
+    if (!text) {
+      throw new BadRequestException(
+        '视觉模型未返回图片描述。请检查 OPENAI_IMAGE_CAPTION_MODEL 是否支持多模态，或稍后重试。',
+      )
+    }
+    return text
+  }
+
   async streamAnswer(opts: {
     userId: string
     sessionId?: string
@@ -422,16 +496,19 @@ export class ChatService {
     const { userId, message, abortSignal, onToken, onDone, onMeta } = opts
 
     const trimmedMsg = (message || '').trim()
-    const { images, fileExtracts } = await this.prepareChatAttachments(opts.attachments)
-    if (!trimmedMsg && images.length === 0 && fileExtracts.length === 0) {
+    const { images: preparedImages, fileExtracts } = await this.prepareChatAttachments(opts.attachments)
+    const attachedImageCount = preparedImages.length
+    let imagesForApi = [...preparedImages]
+    if (!trimmedMsg && preparedImages.length === 0 && fileExtracts.length === 0) {
       throw new BadRequestException('消息与附件不能同时为空')
     }
 
     const cfg = this.getChatConfig()
 
     let persistedUser = trimmedMsg
-    if (images.length) {
-      persistedUser += (persistedUser ? '\n' : '') + images.map((i) => `[图片: ${i.name}]`).join(' ')
+    if (preparedImages.length) {
+      persistedUser +=
+        (persistedUser ? '\n' : '') + preparedImages.map((i) => `[图片: ${i.name}]`).join(' ')
     }
     for (const f of fileExtracts) {
       persistedUser += `\n\n[文件 ${f.name}]\n${f.text.slice(0, 8000)}`
@@ -481,26 +558,6 @@ export class ChatService {
     const context = buildContext(chunks)
     const hasReferenceMaterial = chunks.length > 0 && context.trim().length > 0
 
-    const userMsg = await this.db.query<{ id: string }>(
-      `INSERT INTO chat_messages (session_id, role, content)
-       VALUES ($1, 'user', $2)
-       RETURNING id`,
-      [sessionId, persistedUser],
-    )
-
-    await this.touchSessionUpdatedAt(sessionId)
-    const titleSeed = trimmedMsg || images.map((i) => i.name).join('、') || fileExtracts[0]?.name || '附件'
-    await this.maybeAutoTitleFromFirstMessage(sessionId, userId, titleSeed)
-
-    onMeta?.({
-      sessionId,
-      ragChunkCount: chunks.length,
-      userMessageId: userMsg.rows[0].id,
-      imageCount: images.length,
-      fileCount: fileExtracts.length,
-    })
-
-    const system = buildSystemPrompt(hasReferenceMaterial, images.length > 0)
     const questionLine = trimmedMsg || '请结合我上传的图片与文件回答。'
     let userTurn = buildUserTurnContent(questionLine, context)
     if (fileExtracts.length) {
@@ -508,13 +565,24 @@ export class ChatService {
       userTurn = `【用户上传的文件全文】\n${appendix}\n\n` + userTurn
     }
 
+    if (isMiniMaxGateway(baseURL) && imagesForApi.length > 0) {
+      const caption = await this.captionImagesForMiniMaxBeforeChat({
+        images: imagesForApi,
+        userHint: questionLine,
+        abortSignal,
+      })
+      userTurn = `【图片描述（自动识别）】\n${caption}\n\n` + userTurn
+      imagesForApi = []
+    }
+
+    const system = buildSystemPrompt(hasReferenceMaterial, attachedImageCount > 0)
     const lastUser: OpenAI.Chat.ChatCompletionMessageParam =
-      images.length > 0
+      imagesForApi.length > 0
         ? {
             role: 'user',
             content: [
               { type: 'text', text: userTurn },
-              ...images.map((im) => ({
+              ...imagesForApi.map((im) => ({
                 type: 'image_url' as const,
                 image_url: { url: im.dataUrl },
               })),
@@ -528,6 +596,29 @@ export class ChatService {
       lastUser,
     ]
 
+    const userMsg = await this.db.query<{ id: string }>(
+      `INSERT INTO chat_messages (session_id, role, content)
+       VALUES ($1, 'user', $2)
+       RETURNING id`,
+      [sessionId, persistedUser],
+    )
+
+    await this.touchSessionUpdatedAt(sessionId)
+    const titleSeed =
+      trimmedMsg ||
+      preparedImages.map((i) => i.name).join('、') ||
+      fileExtracts[0]?.name ||
+      '附件'
+    await this.maybeAutoTitleFromFirstMessage(sessionId, userId, titleSeed)
+
+    onMeta?.({
+      sessionId,
+      ragChunkCount: chunks.length,
+      userMessageId: userMsg.rows[0].id,
+      imageCount: attachedImageCount,
+      fileCount: fileExtracts.length,
+    })
+
     const temperature = hasReferenceMaterial
       ? parseFloat(process.env.CHAT_TEMPERATURE_RAG || '0.35')
       : parseFloat(process.env.CHAT_TEMPERATURE_GENERAL || '0.65')
@@ -537,10 +628,12 @@ export class ChatService {
       Math.max(256, parseInt(process.env.CHAT_MAX_COMPLETION_TOKENS || '3072', 10) || 3072),
     )
 
-    const useReasoningSplit = process.env.MINIMAX_REASONING_SPLIT !== 'false'
+    // MiniMax：reasoning_split 易导致 delta 正文与思考字段分离，默认关闭；需时设 MINIMAX_REASONING_SPLIT=true
+    const useReasoningSplit = process.env.MINIMAX_REASONING_SPLIT === 'true'
 
     const assistantRawChunks: string[] = []
     const visibleFilter = createAssistantVisibleStreamFilter()
+    const streamContentState = { last: '', minimax: isMiniMaxGateway(baseURL) }
 
     const stream = await openai.chat.completions.create(
       {
@@ -565,7 +658,7 @@ export class ChatService {
     try {
       for await (const chunk of stream as any) {
         const delta = chunk?.choices?.[0]?.delta
-        const piece = typeof delta?.content === 'string' ? delta.content : ''
+        const piece = extractStreamContentDelta(delta, streamContentState)
         if (!piece) continue
         assistantRawChunks.push(piece)
         const rawSoFar = assistantRawChunks.join('')
